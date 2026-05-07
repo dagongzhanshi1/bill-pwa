@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.json">
+<title>记账</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: #f5f5f7;
+  color: #1d1d1f;
+  padding: 20px;
+  max-width: 500px;
+  margin: 0 auto;
+}
+h1 { font-size: 28px; font-weight: 700; margin-bottom: 24px; text-align: center; }
+.card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+.form-group { margin-bottom: 16px; }
+.form-group label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: #6e6e73;
+  margin-bottom: 6px;
+}
+.form-group input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1.5px solid #d2d2d7;
+  border-radius: 10px;
+  font-size: 16px;
+  outline: none;
+  transition: border 0.2s;
+}
+.form-group input:focus { border-color: #007aff; }
+.form-group select {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1.5px solid #d2d2d7;
+  border-radius: 10px;
+  font-size: 16px;
+  background: #fff;
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%23999' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+}
+.form-group select:focus { border-color: #007aff; }
+.btn {
+  width: 100%;
+  padding: 14px;
+  background: #007aff;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 17px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.btn:active { opacity: 0.8; }
+.btn-secondary {
+  background: #e8e8ed;
+  color: #1d1d1f;
+  margin-top: 8px;
+}
+.btn-danger {
+  background: #ff3b30;
+  margin-top: 8px;
+}
+.stats {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.stat-card {
+  flex: 1;
+  background: #fff;
+  border-radius: 12px;
+  padding: 14px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+.stat-card .num { font-size: 22px; font-weight: 700; color: #007aff; }
+.stat-card .label { font-size: 12px; color: #6e6e73; margin-top: 2px; }
+.record {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+.record:last-child { border-bottom: none; }
+.record .left { flex: 1; }
+.record .name { font-size: 15px; font-weight: 500; }
+.record .meta { font-size: 12px; color: #6e6e73; margin-top: 2px; }
+.record .amount { font-size: 16px; font-weight: 600; color: #ff3b30; }
+.record .del {
+  color: #ff3b30;
+  font-size: 18px;
+  padding: 4px 8px;
+  cursor: pointer;
+  opacity: 0.5;
+}
+.record .del:active { opacity: 1; }
+.tabs { display: flex; gap: 0; margin-bottom: 16px; background: #e8e8ed; border-radius: 10px; padding: 2px; }
+.tab { flex: 1; text-align: center; padding: 8px; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; transition: 0.2s; }
+.tab.active { background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+</style>
+</head>
+<body>
+
+<h1>💰 记账</h1>
+
+<div class="stats">
+  <div class="stat-card"><div class="num" id="todayTotal">¥0</div><div class="label">今日</div></div>
+  <div class="stat-card"><div class="num" id="monthTotal">¥0</div><div class="label">本月</div></div>
+  <div class="stat-card"><div class="num" id="recordCount">0</div><div class="label">笔数</div></div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('add')">记一笔</div>
+  <div class="tab" onclick="switchTab('list')">流水</div>
+</div>
+
+<div id="tab-add">
+  <div class="card">
+    <div class="form-group">
+      <label>条目</label>
+      <input type="text" id="inpName" placeholder="如：午饭" autocomplete="off">
+    </div>
+    <div class="form-group">
+      <label>金额</label>
+      <input type="number" id="inpAmount" placeholder="0.00" step="0.01">
+    </div>
+    <div class="form-group">
+      <label>分类</label>
+      <select id="selCategory">
+        <option>餐饮</option><option>日用</option><option>交通</option>
+        <option>App订阅</option><option>学习</option><option>人情世故</option>
+        <option>理财</option><option>购物</option><option>医疗</option><option>其他</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>账户</label>
+      <select id="selAccount">
+        <option>微信余额</option><option>支付宝</option><option>现金</option><option>银行卡</option>
+      </select>
+    </div>
+    <button class="btn" onclick="addRecord()">记一笔</button>
+  </div>
+</div>
+
+<div id="tab-list" style="display:none">
+  <div class="card" id="recordList"></div>
+  <button class="btn btn-secondary" onclick="exportCSV()">导出 CSV</button>
+  <button class="btn btn-danger" onclick="if(confirm('确定清空所有数据？'))clearAll()">清空数据</button>
+</div>
+
+<script>
+// ====== 数据存储 (IndexedDB) ======
+let db;
+const DB_NAME = 'bill_db';
+const STORE_NAME = 'records';
+
+function openDB() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open(DB_NAME, 1);
+    req.onupgradeneeded = e => {
+      const d = e.target.result;
+      if (!d.objectStoreNames.contains(STORE_NAME)) {
+        d.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
+      }
+    };
+    req.onsuccess = e => { db = e.target.result; resolve(); };
+    req.onerror = reject;
+  });
+}
+
+function getAllRecords() {
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE_NAME, 'readonly');
+    const store = tx.objectStore(STORE_NAME);
+    const req = store.getAll();
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = reject;
+  });
+}
+
+function addRecordDB(record) {
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE_NAME, 'readwrite');
+    const store = tx.objectStore(STORE_NAME);
+    const req = store.add(record);
+    req.onsuccess = resolve;
+    req.onerror = reject;
+  });
+}
+
+function deleteRecordDB(id) {
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE_NAME, 'readwrite');
+    const store = tx.objectStore(STORE_NAME);
+    store.delete(id);
+    tx.oncomplete = resolve;
+    tx.onerror = reject;
+  });
+}
+
+function clearDB() {
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE_NAME, 'readwrite');
+    const store = tx.objectStore(STORE_NAME);
+    store.clear();
+    tx.oncomplete = resolve;
+    tx.onerror = reject;
+  });
+}
+
+// ====== 核心功能 ======
+function today() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+async function addRecord() {
+  const name = document.getElementById('inpName').value.trim();
+  const amount = parseFloat(document.getElementById('inpAmount').value);
+  const category = document.getElementById('selCategory').value;
+  const account = document.getElementById('selAccount').value;
+  if (!name) { alert('请输入条目'); return; }
+  if (!amount || amount <= 0) { alert('请输入有效金额'); return; }
+  const record = { name, amount, category, account, date: today(), ts: Date.now() };
+  await addRecordDB(record);
+  document.getElementById('inpName').value = '';
+  document.getElementById('inpAmount').value = '';
+  refreshStats();
+  refreshList();
+  // 触觉反馈
+  if (navigator.vibrate) navigator.vibrate(10);
+}
+
+async function delRecord(id) {
+  await deleteRecordDB(id);
+  refreshStats();
+  refreshList();
+}
+
+function formatMoney(n) {
+  return '¥' + n.toFixed(2);
+}
+
+async function refreshStats() {
+  const records = await getAllRecords();
+  const todayStr = today();
+  const thisMonth = todayStr.slice(0, 7);
+  let todaySum = 0, monthSum = 0;
+  records.forEach(r => {
+    if (r.date === todayStr) todaySum += r.amount;
+    if (r.date.startsWith(thisMonth)) monthSum += r.amount;
+  });
+  document.getElementById('todayTotal').textContent = formatMoney(todaySum);
+  document.getElementById('monthTotal').textContent = formatMoney(monthSum);
+  document.getElementById('recordCount').textContent = records.length;
+}
+
+async function refreshList() {
+  const records = await getAllRecords();
+  records.sort((a, b) => b.ts - a.ts);
+  const container = document.getElementById('recordList');
+  if (records.length === 0) {
+    container.innerHTML = '<div style="text-align:center;color:#6e6e73;padding:30px">还没有记录</div>';
+    return;
+  }
+  container.innerHTML = records.map(r => `
+    <div class="record">
+      <div class="left">
+        <div class="name">${r.name}</div>
+        <div class="meta">${r.date} · ${r.category} · ${r.account}</div>
+      </div>
+      <div class="amount">${formatMoney(r.amount)}</div>
+      <div class="del" onclick="delRecord(${r.id})">✕</div>
+    </div>
+  `).join('');
+}
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-add').style.display = tab === 'add' ? 'block' : 'none';
+  document.getElementById('tab-list').style.display = tab === 'list' ? 'block' : 'none';
+  event.target.classList.add('active');
+  if (tab === 'list') refreshList();
+}
+
+async function exportCSV() {
+  const records = await getAllRecords();
+  if (records.length === 0) { alert('没有数据可导出'); return; }
+  records.sort((a, b) => a.ts - b.ts);
+  let csv = '日期,条目,金额,分类,账户\n';
+  records.forEach(r => {
+    csv += `${r.date},${r.name},${r.amount},${r.category},${r.account}\n`;
+  });
+  const blob = new Blob(['\ufeff' + csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `账单_${today()}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+async function clearAll() {
+  await clearDB();
+  refreshStats();
+  refreshList();
+}
+
+// ====== 启动 ======
+openDB().then(() => {
+  refreshStats();
+  refreshList();
+});
+</script>
+</body>
+</html>
