@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#4A7C59" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#1a1a2e" media="(prefers-color-scheme: dark)">
-<link rel="manifest" href="manifest.json">
+<link rel="manifest" href="manifest.json?v=2">
 <title>轻记账</title>
 <style>
 :root {
@@ -36,18 +36,18 @@
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--text);padding-bottom:calc(var(--tab-height)+env(safe-area-inset-bottom));overflow-x:hidden}
-.page{display:none;padding:16px 16px 90px;max-width:480px;margin:0 auto;animation:fadeIn .2s}
+.page{display:none;padding:20px 20px 100px;max-width:480px;margin:0 auto;animation:fadeIn .2s}
 .page.active{display:block}
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-.page-title{font-size:22px;font-weight:700;margin-bottom:16px;padding-top:8px}
-.card{background:var(--card);border-radius:var(--radius);padding:16px;margin-bottom:12px;box-shadow:var(--shadow)}
-.card-title{font-size:14px;font-weight:600;color:var(--text2);margin-bottom:10px}
-.input-group{margin-bottom:12px}
-.input-group label{display:block;font-size:13px;font-weight:500;color:var(--text2);margin-bottom:4px}
-.input-group input,.input-group select,.input-group textarea{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:15px;background:var(--card);color:var(--text);outline:none;transition:border .2s}
+.page-title{font-size:26px;font-weight:700;margin-bottom:20px;padding-top:12px}
+.card{background:var(--card);border-radius:var(--radius);padding:20px;margin-bottom:14px;box-shadow:var(--shadow)}
+.card-title{font-size:16px;font-weight:600;color:var(--text2);margin-bottom:12px}
+.input-group{margin-bottom:16px}
+.input-group label{display:block;font-size:15px;font-weight:600;color:var(--text2);margin-bottom:6px}
+.input-group input,.input-group select,.input-group textarea{width:100%;padding:14px 16px;border:2px solid var(--border);border-radius:12px;font-size:17px;background:var(--card);color:var(--text);outline:none;transition:border .2s;-webkit-appearance:none;appearance:none}
 .input-group input:focus,.input-group select:focus,.input-group textarea:focus{border-color:var(--primary)}
 .input-group textarea{resize:none;min-height:60px;font-family:inherit}
-.btn{display:inline-flex;align-items:center;justify-content:center;padding:10px 20px;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;transition:opacity .15s;gap:6px}
+.btn{display:inline-flex;align-items:center;justify-content:center;padding:14px 20px;border:none;border-radius:12px;font-size:17px;font-weight:600;cursor:pointer;transition:opacity .15s;gap:6px}
 .btn:active{opacity:.7}
 .btn-primary{background:var(--primary);color:#fff;width:100%}
 .btn-secondary{background:var(--border);color:var(--text);width:100%}
@@ -63,25 +63,25 @@ body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg
 /* Home page */
 .home-summary{display:flex;gap:10px;margin-bottom:16px}
 .summary-item{flex:1;background:var(--card);border-radius:var(--radius);padding:14px;text-align:center;box-shadow:var(--shadow)}
-.summary-item .num{font-size:24px;font-weight:700;color:var(--primary)}
+.summary-item .num{font-size:28px;font-weight:700;color:var(--primary)}
 .summary-item .label{font-size:12px;color:var(--text2);margin-top:2px}
 
 /* List page */
 .list-date{font-size:13px;font-weight:600;color:var(--text2);margin:12px 0 6px;padding:0 4px}
-.list-item{display:flex;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);gap:8px}
+.list-item{display:flex;align-items:center;padding:12px 0;border-bottom:1px solid var(--border);gap:10px}
 .list-item:last-child{border:none}
 .list-item .cat-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 .list-item .info{flex:1;min-width:0}
-.list-item .info .name{font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.list-item .info .name{font-size:16px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .list-item .info .meta{font-size:12px;color:var(--text2)}
-.list-item .amount{font-size:15px;font-weight:600;white-space:nowrap}
+.list-item .amount{font-size:17px;font-weight:600;white-space:nowrap}
 .list-item .actions{display:flex;gap:2px}
 .filter-bar{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
-.filter-bar input,.filter-bar select{flex:1;min-width:80px;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;background:var(--card);color:var(--text)}
+.filter-bar input,.filter-bar select{flex:1;min-width:80px;padding:10px 12px;border:2px solid var(--border);border-radius:10px;font-size:15px;background:var(--card);color:var(--text)}
 
 /* Stats page */
 .stats-card{background:var(--card);border-radius:var(--radius);padding:16px;margin-bottom:12px;box-shadow:var(--shadow)}
-.chart-container{position:relative;width:100%;display:flex;justify-content:center}
+.chart-container{position:relative;width:100%;display:flex;justify-content:center;padding:4px 0}
 #pieChart,#lineChart{max-width:100%;background:var(--card)}
 .stats-cat-list{margin-top:12px}
 .stats-cat-item{display:flex;align-items:center;padding:6px 0;gap:8px;font-size:13px}
@@ -102,11 +102,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg
 .setting-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border)}
 .setting-row:last-child{border:none}
 .setting-row .label{font-size:14px}
-.toggle{position:relative;width:44px;height:24px;background:var(--border);border-radius:12px;cursor:pointer;transition:background .2s;border:none;padding:0}
-.toggle.on{background:var(--primary)}
-.toggle::after{content:'';position:absolute;top:2px;left:2px;width:20px;height:20px;background:#fff;border-radius:50%;transition:transform .2s}
-.toggle.on::after{transform:translateX(20px)}
-
 /* Skeleton */
 .skeleton{background:linear-gradient(90deg,var(--border) 25%,var(--card) 50%,var(--border) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:6px}
 @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
@@ -130,10 +125,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg
   </div>
   <div class="card">
     <div class="card-title">记一笔</div>
+    <div class="input-group"><label>支出名称</label><input type="text" id="inpName" placeholder="如：午饭"></div>
     <div class="input-group"><label>金额</label><input type="number" id="inpAmount" placeholder="0.00" step="0.01" inputmode="decimal"></div>
     <div class="input-group"><label>分类</label><select id="inpCategory"></select></div>
+    <div class="input-group"><label>账户</label><select id="inpAccount"></select></div>
     <div class="input-group"><label>日期</label><input type="date" id="inpDate"></div>
-    <div class="input-group"><label>备注</label><textarea id="inpNote" placeholder="可选"></textarea></div>
     <button class="btn btn-primary" onclick="addRecord()">保存</button>
   </div>
 </div>
@@ -142,8 +138,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg
 <div class="page" id="page-list">
   <div class="page-title">账单</div>
   <div class="filter-bar">
-    <input id="searchInput" placeholder="搜索备注" oninput="renderList()">
+    <input id="searchInput" placeholder="搜索支出名称" oninput="renderList()">
     <select id="filterCategory" onchange="renderList()"><option value="">全部分类</option></select>
+    <select id="filterAccount" onchange="renderList()" style="max-width:110px"><option value="">全部账户</option></select>
     <input type="date" id="filterDateStart" onchange="renderList()" style="max-width:130px">
     <input type="date" id="filterDateEnd" onchange="renderList()" style="max-width:130px">
   </div>
@@ -156,12 +153,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg
   <div class="stats-card">
     <div class="card-title">本月支出</div>
     <div style="font-size:28px;font-weight:700;color:var(--primary);margin-bottom:12px" id="monthTotal">0.00</div>
-    <div class="chart-container"><canvas id="pieChart" width="220" height="220"></canvas></div>
+    <div class="chart-container" id="chartContainer"></div>
     <div id="pieLegend" class="stats-cat-list"></div>
   </div>
   <div class="stats-card">
     <div class="card-title">按日趋势</div>
-    <div class="chart-container"><canvas id="lineChart" width="440" height="180"></canvas></div>
+    <div class="chart-container" id="lineContainer"></div>
   </div>
 </div>
 
@@ -169,11 +166,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg
 <div class="page" id="page-settings">
   <div class="page-title">设置</div>
   <div class="card">
-    <div class="setting-row"><span class="label">深色模式</span><button class="toggle" id="darkToggle" onclick="toggleDark()"></button></div>
     <div class="setting-row"><span class="label">分类管理</span><button class="btn btn-sm btn-secondary" onclick="showCategoryManager()">管理</button></div>
     <div class="setting-row"><span class="label">导出 CSV</span><button class="btn btn-sm btn-secondary" onclick="exportCSV()">导出</button></div>
     <div class="setting-row"><span class="label">清除全部数据</span><button class="btn btn-sm btn-danger" onclick="confirmClear()">清除</button></div>
-    <div style="text-align:center;padding-top:12px;font-size:12px;color:var(--text2)">轻记账 v1.0</div>
   </div>
 </div>
 
@@ -201,10 +196,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg
 <div class="modal-overlay" id="editModal">
   <div class="modal">
     <h3 id="modalTitle">编辑</h3>
+    <div class="input-group"><label>支出名称</label><input type="text" id="editName"></div>
     <div class="input-group"><label>金额</label><input type="number" id="editAmount" step="0.01"></div>
     <div class="input-group"><label>分类</label><select id="editCategory"></select></div>
+    <div class="input-group"><label>账户</label><select id="editAccount"></select></div>
     <div class="input-group"><label>日期</label><input type="date" id="editDate"></div>
-    <div class="input-group"><label>备注</label><textarea id="editNote"></textarea></div>
     <div class="btn-row"><button class="btn btn-secondary" onclick="closeModal()">取消</button><button class="btn btn-primary" onclick="saveEdit()">保存</button></div>
   </div>
 </div>
@@ -219,11 +215,19 @@ body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg
   </div>
 </div>
 
+<!-- DETAIL MODAL -->
+<div class="modal-overlay" id="detailModal">
+  <div class="modal" style="max-height:80vh;overflow-y:auto">
+    <div id="detailContent"></div>
+    <div class="btn-row" style="margin-top:12px"><button class="btn btn-secondary" onclick="closeDetail()">关闭</button></div>
+  </div>
+</div>
+
 <!-- CONFIRM -->
 <div class="alert-confirm" id="confirmDialog">
   <div class="alert-box">
     <p id="confirmText">确定删除？</p>
-    <div class="btn-row"><button class="btn btn-secondary" onclick="confirmCancel()">取消</button><button class="btn btn-danger" id="confirmOkBtn" onclick="">确定</button></div>
+    <div class="btn-row"><button class="btn btn-secondary" onclick="confirmCancel()">取消</button><button class="btn btn-danger" onclick="confirmOk()">确定</button></div>
   </div>
 </div>
 
@@ -231,23 +235,28 @@ body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg
 // ====== DATA ======
 const STORAGE_RECORDS = 'ledger_records';
 const STORAGE_CATS = 'ledger_categories';
-const DEFAULT_CATS = ['餐饮','交通','购物','娱乐','住房','医疗','教育','通讯','日用品','其他'];
+const DEFAULT_CATS = ['餐饮','App订阅','日用','交通','学习','游戏','娱乐活动','AI','电子产品及配件','家庭开销','人情世故','恋爱支出','医疗健体'];
+const DEFAULT_ACCOUNTS = ['微信支付','支付宝','银行卡','亲情卡'];
 
 function getRecords(){return JSON.parse(localStorage.getItem(STORAGE_RECORDS)||'[]')}
 function saveRecords(r){localStorage.setItem(STORAGE_RECORDS,JSON.stringify(r))}
 function getCategories(){return JSON.parse(localStorage.getItem(STORAGE_CATS)||JSON.stringify(DEFAULT_CATS))}
 function saveCategories(c){localStorage.setItem(STORAGE_CATS,JSON.stringify(c))}
+function getAccounts(){return JSON.parse(localStorage.getItem('ledger_accounts')||JSON.stringify(DEFAULT_ACCOUNTS))}
+function saveAccounts(a){localStorage.setItem('ledger_accounts',JSON.stringify(a))}
 function genId(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
 function today(){return new Date().toISOString().slice(0,10)}
 function now(){const d=new Date();return d.toTimeString().slice(0,5)}
 
 // ====== INIT ======
-if(!localStorage.getItem(STORAGE_CATS)) saveCategories(DEFAULT_CATS);
+saveCategories(DEFAULT_CATS);
+saveAccounts(DEFAULT_ACCOUNTS);
 document.getElementById('inpDate').value=today();
 populateCategorySelects();
 
 function populateCategorySelects(){
   const cats=getCategories();
+  const accts=getAccounts();
   ['inpCategory','editCategory','filterCategory'].forEach(id=>{
     const sel=document.getElementById(id);
     if(!sel) return;
@@ -255,7 +264,16 @@ function populateCategorySelects(){
     else sel.innerHTML='';
     cats.forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=c;sel.appendChild(o)});
   });
+  ['inpAccount','editAccount','filterAccount'].forEach(id=>{
+    const sel=document.getElementById(id);
+    if(!sel) return;
+    sel.innerHTML='';
+    if(id==='filterAccount'){const o=document.createElement('option');o.value='';o.textContent='全部账户';sel.appendChild(o)}
+    accts.forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=c;sel.appendChild(o)});
+  });
 }
+
+function populateAccountSelects(){}
 
 // ====== TAB SWITCH ======
 function switchTab(name){
@@ -266,7 +284,7 @@ function switchTab(name){
   if(name==='home') refreshHome();
   if(name==='list') renderList();
   if(name==='stats') renderStats();
-  if(name==='settings') initSettings();
+  if(name==='settings') {}
 }
 
 // ====== HOME ======
@@ -279,17 +297,21 @@ function refreshHome(){
 }
 
 function addRecord(){
+  const name=document.getElementById('inpName').value.trim();
   const amount=parseFloat(document.getElementById('inpAmount').value);
   const category=document.getElementById('inpCategory').value;
+  const account=document.getElementById('inpAccount').value;
   const date=document.getElementById('inpDate').value;
-  const note=document.getElementById('inpNote').value.trim();
+  const note='';
+  if(!name){alert('请输入支出名称');return}
   if(!amount||amount<=0){alert('请输入有效金额');return}
   if(!category){alert('请选择分类');return}
   const records=getRecords();
-  records.unshift({id:genId(),amount,category,date,note,time:now(),type:'expense'});
+  records.unshift({id:genId(),name,amount,category,account,date,note,time:now(),type:'expense'});
   saveRecords(records);
+  document.getElementById('inpName').value='';
   document.getElementById('inpAmount').value='';
-  document.getElementById('inpNote').value='';
+
   document.getElementById('inpDate').value=today();
   refreshHome();
   switchTab('list');
@@ -303,8 +325,10 @@ function renderList(){
   const ds=document.getElementById('filterDateStart').value;
   const de=document.getElementById('filterDateEnd').value;
   let filtered=records;
-  if(keyword) filtered=filtered.filter(r=>r.note.toLowerCase().includes(keyword));
+  if(keyword) filtered=filtered.filter(r=>(r.name||'').toLowerCase().includes(keyword));
   if(catFilter) filtered=filtered.filter(r=>r.category===catFilter);
+  const acctFilter=document.getElementById('filterAccount').value;
+  if(acctFilter) filtered=filtered.filter(r=>r.account===acctFilter);
   if(ds) filtered=filtered.filter(r=>r.date>=ds);
   if(de) filtered=filtered.filter(r=>r.date<=de);
   const grouped={};
@@ -318,7 +342,7 @@ function renderList(){
   dates.forEach(d=>{
     html+='<div class="list-date">'+d+'</div>';
     grouped[d].forEach(r=>{
-      html+='<div class="list-item"><div class="cat-dot" style="background:'+(colors[r.category]||'#aaa')+'"></div><div class="info"><div class="name">'+r.category+(r.note?' - '+escHtml(r.note):'')+'</div><div class="meta">'+r.time+'</div></div><div class="amount" style="color:'+(r.type==='income'?'var(--primary)':'var(--danger)')+'">'+(r.type==='income'?'+':'-')+r.amount.toFixed(2)+'</div><div class="actions"><button class="btn-icon" onclick="editRecord(\''+r.id+'\')">&#9998;</button><button class="btn-icon" onclick="deleteRecord(\''+r.id+'\')">&#10005;</button></div></div>';
+      html+='<div class="list-item"><div class="cat-dot" style="background:'+(colors[r.category]||'#aaa')+'"></div><div class="info"><div class="name">'+(r.name||r.category)+'</div><div class="meta">'+r.category+(r.account?' · '+r.account:'')+' · '+r.time+'</div></div><div class="amount" style="color:'+(r.type==='income'?'var(--primary)':'var(--danger)')+'">'+(r.type==='income'?'+':'-')+r.amount.toFixed(2)+'</div><div class="actions"><button class="btn-icon" onclick="editRecord(\''+r.id+'\')">&#9998;</button><button class="btn-icon" onclick="deleteRecord(\''+r.id+'\')">&#10005;</button></div></div>';
     });
   });
   container.innerHTML=html;
@@ -330,22 +354,26 @@ let editingId=null;
 function editRecord(id){
   const records=getRecords();const r=records.find(x=>x.id===id);if(!r)return;
   editingId=id;
+  document.getElementById('editName').value=r.name||'';
   document.getElementById('editAmount').value=r.amount;
   document.getElementById('editCategory').value=r.category;
+  document.getElementById('editAccount').value=r.account;
   document.getElementById('editDate').value=r.date;
-  document.getElementById('editNote').value=r.note||'';
+
   document.getElementById('modalTitle').textContent='编辑账单';
   document.getElementById('editModal').classList.add('active');
 }
 function closeModal(){document.getElementById('editModal').classList.remove('active');editingId=null}
 function saveEdit(){
+  const name=document.getElementById('editName').value.trim();
   const amount=parseFloat(document.getElementById('editAmount').value);
   const category=document.getElementById('editCategory').value;
+  const account=document.getElementById('editAccount').value;
   const date=document.getElementById('editDate').value;
-  const note=document.getElementById('editNote').value.trim();
+  const note='';
   if(!amount||amount<=0){alert('请输入有效金额');return}
   const records=getRecords();const idx=records.findIndex(x=>x.id===editingId);
-  if(idx>-1){records[idx]={...records[idx],amount,category,date,note};saveRecords(records)}
+  if(idx>-1){records[idx]={...records[idx],name,amount,category,account,date,note};saveRecords(records)}
   closeModal();renderList();refreshHome();
 }
 
@@ -381,110 +409,122 @@ function renderStats(){
 }
 
 function renderPie(records,total){
-  const canvas=document.getElementById('pieChart');
-  if(!canvas)return;
-  const ctx=canvas.getContext('2d');
-  const w=canvas.width,h=canvas.height,cx=w/2,cy=h/2,radius=80;
-  ctx.clearRect(0,0,w,h);
-  if(total===0){ctx.fillStyle='var(--text2)';ctx.font='14px sans-serif';ctx.textAlign='center';ctx.fillText('暂无数据',cx,cy);return}
+  const container=document.getElementById('chartContainer');
+  if(!container)return;
+  if(total===0){container.innerHTML='<div style="text-align:center;color:var(--text2);padding:30px">暂无数据</div>';document.getElementById('pieLegend').innerHTML='';return}
   const catSum={};records.forEach(r=>{catSum[r.category]=(catSum[r.category]||0)+r.amount});
   const entries=Object.entries(catSum).sort((a,b)=>b[1]-a[1]);
-  const palette=['#4A7C59','#E8A838','#5B8FA8','#C77D7D','#8FAA7F','#B88CB0','#6BA37A','#D4A574','#7C9EB2','#A8A8A8'];
-  let startAngle=-Math.PI/2;
+  const colors=['#4A7C59','#E8A838','#5B8FA8','#C77D7D','#8FAA7F','#B88CB0','#6BA37A','#D4A574','#7C9EB2','#A8A8A8','#D4A574','#B88CB0','#C77D7D'];
+  // Build SVG donut chart
+  const cx=120,cy=120,r=85,innerR=50;
+  let dashOffset=0;
+  const totalCirc=2*Math.PI*r;
+  let slices='';
   entries.forEach(([cat,amt],i)=>{
-    const pct=amt/total;const angle=pct*Math.PI*2;
-    ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,radius,startAngle,startAngle+angle);
-    ctx.closePath();ctx.fillStyle=palette[i%palette.length];ctx.fill();
-    startAngle+=angle;
+    const pct=amt/total;
+    const circ=pct*totalCirc;
+    const dash=`${circ} ${totalCirc-circ}`;
+    const rotate=-90+pct*180; // rotate so it starts from top
+    slices+='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="'+colors[i%colors.length]+'" stroke-width="'+(r-innerR)+'" stroke-dasharray="'+dash+'" stroke-dashoffset="'+( -dashOffset)+'" transform="rotate(-90 '+cx+' '+cy+')" style="transition:stroke-dashoffset 0.3s"/>';
+    dashOffset+=circ;
   });
-  ctx.beginPath();ctx.arc(cx,cy,45,0,Math.PI*2);ctx.fillStyle='var(--card)';ctx.fill();
-  ctx.fillStyle='var(--text)';ctx.font='bold 16px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(total.toFixed(0),cx,cy);
-  // legend
+  const svg='<svg width="240" height="240" viewBox="0 0 240 240"><defs><filter id="shadow"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.1"/></filter></defs>'+
+    slices+
+    '<text x="120" y="112" text-anchor="middle" font-size="22" font-weight="700" fill="var(--text)">¥'+total.toFixed(0)+'</text>'+
+    '<text x="120" y="134" text-anchor="middle" font-size="13" fill="var(--text2)">本月支出</text>'+
+    '</svg>';
+  container.innerHTML=svg;
+  // Legend
   const legend=document.getElementById('pieLegend');
   legend.innerHTML=entries.map(([cat,amt],i)=>{
     const pct=(amt/total*100).toFixed(1);
-    return '<div class="stats-cat-item"><span style="width:10px;height:10px;border-radius:2px;background:'+palette[i%palette.length]+';flex-shrink:0"></span><span style="flex:1">'+cat+'</span><span class="pct">'+pct+'%</span><span style="font-weight:600;width:60px;text-align:right">'+amt.toFixed(2)+'</span></div>';
+    return '<div class="stats-cat-item" onclick="showCategoryDetail(\''+cat+'\')" style="cursor:pointer;padding:8px 6px;border-radius:8px;transition:background 0.15s" onmouseover="this.style.background=\'var(--border)\'" onmouseout="this.style.background=\'transparent\'"><span style="width:12px;height:12px;border-radius:3px;background:'+colors[i%colors.length]+';flex-shrink:0"></span><span style="flex:1;font-size:15px;font-weight:500">'+cat+'</span><span style="font-size:14px;color:var(--text2);width:45px;text-align:right">'+pct+'%</span><span style="font-weight:600;font-size:15px;width:70px;text-align:right">¥'+amt.toFixed(2)+'</span></div>';
   }).join('');
 }
 
 function renderLine(records,month){
-  const canvas=document.getElementById('lineChart');
-  if(!canvas)return;
-  const ctx=canvas.getContext('2d');
-  const w=canvas.width,h=canvas.height;
-  ctx.clearRect(0,0,w,h);
+  const container=document.getElementById('lineContainer');
+  if(!container)return;
+  // Always show last 7 days (including zero-expense days)
+  const todayStr=new Date().toISOString().slice(0,10);
+  const d=new Date(todayStr);
+  const allDays=[];const dayMap={};
+  for(let i=6;i>=0;i--){const cd=new Date(d);cd.setDate(cd.getDate()-i);const s=cd.toISOString().slice(0,10);allDays.push(s);dayMap[s]=0}
   const recs=records.filter(r=>r.date.startsWith(month)&&r.type==='expense');
-  if(recs.length===0){ctx.fillStyle='var(--text2)';ctx.font='14px sans-serif';ctx.textAlign='center';ctx.fillText('暂无数据',w/2,h/2);return}
-  const daySum={};recs.forEach(r=>{daySum[r.date]=(daySum[r.date]||0)+r.amount});
-  const days=Object.keys(daySum).sort();
-  const vals=days.map(d=>daySum[d]);
+  recs.forEach(r=>{if(dayMap[r.date]!==undefined)dayMap[r.date]+=r.amount});
+  const days=allDays;const vals=days.map(d=>dayMap[d]);
+  if(recs.length===0){container.innerHTML='<div style="text-align:center;color:var(--text2);padding:30px">暂无数据</div>';return}
+  
   const max=Math.max(...vals,1);
-  const pad={t:20,b:20,l:40,r:10};
+  const w=container.clientWidth||360,h=200;
+  const pad={t:20,b:40,l:55,r:20};
   const cw=w-pad.l-pad.r,ch=h-pad.t-pad.b;
-  // grid
-  ctx.strokeStyle='var(--border)';ctx.lineWidth=0.5;
-  for(let i=0;i<=4;i++){const y=pad.t+ch*i/4;ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(w-pad.r,y);ctx.stroke();ctx.fillStyle='var(--text2)';ctx.font='10px sans-serif';ctx.textAlign='right';ctx.fillText((max*(1-i/4)).toFixed(0),pad.l-4,y+3)}
-  // line
-  if(days.length<2)return;
-  ctx.strokeStyle='var(--primary)';ctx.lineWidth=2;ctx.lineJoin='round';
-  ctx.beginPath();
-  days.forEach((d,i)=>{const x=pad.l+cw*i/(days.length-1);const y=pad.t+ch*(1-vals[i]/max);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y)});
-  ctx.stroke();
-  // dots + labels
-  ctx.fillStyle='var(--primary)';
+  const xScale=(i)=>pad.l+cw*(i/(Math.max(days.length-1,1)));
+  const yScale=(v)=>pad.t+ch*(1-v/max);
+  let pts='',area='',dots='',labels='',grid='';
+  // Grid + Y axis
+  for(let i=0;i<=4;i++){
+    const y=yScale(max*i/4);
+    grid+='<line x1="'+pad.l+'" y1="'+y+'" x2="'+(w-pad.r)+'" y2="'+y+'" stroke="var(--border)" stroke-width="0.5" stroke-dasharray="4,4"/>';
+    grid+='<text x="'+(pad.l-6)+'" y="'+y+'" text-anchor="end" dominant-baseline="middle" fill="var(--text2)" font-size="11">¥'+(max*(1-i/4)).toFixed(0)+'</text>';
+  }
+  if(days.length>=2){
+    const p=days.map((d,i)=>xScale(i)+','+yScale(vals[i])).join(' ');
+    pts='<polyline points="'+p+'" fill="none" stroke="#4A7C59" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" filter="url(#ls)"/>';
+    const a='M'+xScale(0)+','+(pad.t+ch)+' '+days.map((d,i)=>xScale(i)+','+yScale(vals[i])).join(' ')+' L'+xScale(days.length-1)+','+(pad.t+ch)+' Z';
+    area='<path d="'+a+'" fill="url(#lg)" opacity="0.5"/>';
+  }
   days.forEach((d,i)=>{
-    const x=pad.l+cw*i/(days.length-1);const y=pad.t+ch*(1-vals[i]/max);
-    ctx.beginPath();ctx.arc(x,y,3,0,Math.PI*2);ctx.fill();
-    if(i%Math.ceil(days.length/6)===0||i===days.length-1){
-      ctx.fillStyle='var(--text2)';ctx.font='9px sans-serif';ctx.textAlign='center';
-      ctx.fillText(d.slice(5),x,pad.t+ch+12);
-      ctx.fillStyle='var(--primary)';
+    const x=xScale(i),y=yScale(vals[i]);
+    dots+='<circle cx="'+x+'" cy="'+y+'" r="4" fill="#fff" stroke="#4A7C59" stroke-width="2.5"/>';
+    if(days.length<=10||i%Math.ceil(days.length/5)===0||i===days.length-1){
+      labels+='<text x="'+x+'" y="'+(pad.t+ch+14)+'" text-anchor="middle" fill="var(--text2)" font-size="11">'+(d.slice(5))+'</text>';
+      labels+='<text x="'+x+'" y="'+(y-10)+'" text-anchor="middle" fill="var(--text)" font-size="11" font-weight="600">¥'+vals[i].toFixed(0)+'</text>';
     }
   });
-}
-
-// ====== SETTINGS ======
-function initSettings(){
-  const dark=localStorage.getItem('darkMode')==='true';
-  document.getElementById('darkToggle').classList.toggle('on',dark);
-}
-function toggleDark(){
-  const on=document.getElementById('darkToggle').classList.toggle('on');
-  localStorage.setItem('darkMode',on);
-  applyDark(on);
-}
-function applyDark(on){
-  document.documentElement.style.colorScheme=on?'dark':'light';
-}
-// init dark
-if(localStorage.getItem('darkMode')==='true'){applyDark(true);document.getElementById('darkToggle').classList.add('on')}
-
-function exportCSV(){
+  const svg='<svg width="'+w+'" height="'+h+'" viewBox="0 0 '+w+' '+h+'" style="display:block;background:var(--card)"><defs><linearGradient id="lg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#4A7C59" stop-opacity="0.15"/><stop offset="100%" stop-color="#4A7C59" stop-opacity="0.01"/></linearGradient><filter id="ls"><feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#4A7C59" flood-opacity="0.3"/></filter></defs>'+grid+area+pts+dots+labels+'</svg>';
+  container.innerHTML=svg;
+}function exportCSV(){
   const records=getRecords();
   if(records.length===0){alert('没有数据');return}
-  let csv='\ufeff日期,分类,金额,备注,时间\n';
-  records.forEach(r=>{csv+=r.date+','+r.category+','+r.amount+','+(r.note||'')+','+r.time+'\n'});
-  const blob=new Blob([csv],{type:'text/csv'});const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');a.href=url;a.download='ledger_'+today()+'.csv';
-  a.click();URL.revokeObjectURL(url);
+  let csv='\ufeff日期,名称,分类,账户,金额,时间\n';
+  records.forEach(r=>{csv+=r.date+','+(r.name||'')+','+r.category+','+(r.account||'')+','+r.amount+','+r.time+'\n'});
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download='ledger_'+today()+'.csv';a.style.display='none';
+  document.body.appendChild(a);a.click();
+  setTimeout(()=>{document.body.removeChild(a);URL.revokeObjectURL(url)},100);
+  alert('已导出 '+records.length+' 条数据');
 }
-
-function confirmClear(){showConfirm('确定清除全部数据？此操作不可恢复。',()=>{saveRecords([]);refreshHome();renderList();})}
-
-// ====== CONFIRM DIALOG ======
-let confirmCb=null;
+function confirmClear(){showConfirm('确定清除全部数据？此操作不可恢复。',()=>{localStorage.clear();location.reload()})}
+let confirmCallback=null;
 function showConfirm(text,cb){
   document.getElementById('confirmText').textContent=text;
-  document.getElementById('confirmOkBtn').onclick=function(){document.getElementById('confirmDialog').classList.remove('active');if(cb)cb()};
+  confirmCallback=cb;
   document.getElementById('confirmDialog').classList.add('active');
 }
-function confirmCancel(){document.getElementById('confirmDialog').classList.remove('active')}
+function confirmOk(){document.getElementById('confirmDialog').classList.remove('active');if(confirmCallback)confirmCallback()}
+function confirmCancel(){document.getElementById('confirmDialog').classList.remove('active');confirmCallback=null}
+function showCategoryDetail(cat){
+  const records=getRecords().filter(r=>r.category===cat&&r.type==='expense');
+  records.sort((a,b)=>b.ts-a.ts);
+  const total=records.reduce((s,r)=>s+r.amount,0);
+  let html='<div style="font-size:18px;font-weight:700;margin-bottom:4px">'+cat+'</div>';
+  html+='<div style="font-size:14px;color:var(--text2);margin-bottom:12px">共'+records.length+'笔 · 合计¥'+total.toFixed(2)+'</div>';
+  records.forEach(r=>{
+    html+='<div class="list-item"><div class="info"><div class="name">'+(r.name||'')+'</div><div class="meta">'+r.date+' · '+(r.account||'')+'</div></div><div class="amount" style="color:var(--danger)">¥'+r.amount.toFixed(2)+'</div></div>';
+  });
+  document.getElementById('detailContent').innerHTML=html;
+  document.getElementById('detailModal').classList.add('active');
+}
+function closeDetail(){document.getElementById('detailModal').classList.remove('active')}
 
 // ====== INIT ======
 refreshHome();
 // ====== SERVICE WORKER ======
 if('serviceWorker' in navigator){
-  navigator.serviceWorker.register('sw.js');
+  navigator.serviceWorker.register('sw.js?v=2');
 }
 </script>
 </body>
