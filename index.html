@@ -137,13 +137,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg
 <!-- LIST -->
 <div class="page" id="page-list">
   <div class="page-title">账单</div>
-  <div class="filter-bar">
-    <input id="searchInput" placeholder="搜索支出名称" oninput="renderList()">
-    <select id="filterCategory" onchange="renderList()"><option value="">全部分类</option></select>
-    <select id="filterAccount" onchange="renderList()" style="max-width:110px"><option value="">全部账户</option></select>
-    <input type="date" id="filterDateStart" onchange="renderList()" style="max-width:110px;font-size:13px;padding:8px 6px" value="">
-    <input type="date" id="filterDateEnd" onchange="renderList()" style="max-width:110px;font-size:13px;padding:8px 6px" value="">
-  </div>
   <div id="listContent"></div>
 </div>
 
