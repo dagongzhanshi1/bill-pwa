@@ -141,8 +141,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg
     <input id="searchInput" placeholder="搜索支出名称" oninput="renderList()">
     <select id="filterCategory" onchange="renderList()"><option value="">全部分类</option></select>
     <select id="filterAccount" onchange="renderList()" style="max-width:110px"><option value="">全部账户</option></select>
-    <input type="date" id="filterDateStart" onchange="renderList()" style="max-width:130px">
-    <input type="date" id="filterDateEnd" onchange="renderList()" style="max-width:130px">
+    <input type="date" id="filterDateStart" onchange="renderList()" style="max-width:110px;font-size:13px;padding:8px 6px">
+    <input type="date" id="filterDateEnd" onchange="renderList()" style="max-width:110px;font-size:13px;padding:8px 6px">
   </div>
   <div id="listContent"></div>
 </div>
@@ -168,9 +168,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg
   <div class="card">
     <div class="card-title">按分类查询</div>
     <div class="input-group"><label>分类</label><select id="analysisCategory" onchange="runAnalysis()"></select></div>
-    <div style="display:flex;gap:8px">
-      <div class="input-group" style="flex:1"><label>开始日期</label><input type="date" id="analysisDateStart" onchange="runAnalysis()"></div>
-      <div class="input-group" style="flex:1"><label>结束日期</label><input type="date" id="analysisDateEnd" onchange="runAnalysis()"></div>
+    <div style="display:flex;gap:6px">
+      <div class="input-group" style="flex:1;min-width:0"><label>开始</label><input type="date" id="analysisDateStart" onchange="runAnalysis()" style="font-size:14px;padding:10px 8px;min-width:0;width:100%"></div>
+      <div class="input-group" style="flex:1;min-width:0"><label>结束</label><input type="date" id="analysisDateEnd" onchange="runAnalysis()" style="font-size:14px;padding:10px 8px;min-width:0;width:100%"></div>
     </div>
     <div id="analysisResult" style="margin-top:12px"></div>
   </div>
@@ -279,7 +279,7 @@ function now(){const d=new Date();return d.toTimeString().slice(0,5)}
 // ====== INIT ======
 saveCategories(DEFAULT_CATS);
 saveAccounts(DEFAULT_ACCOUNTS);
-document.getElementById('inpDate').value=today();
+setTimeout(function(){document.getElementById('inpDate').value=today();},50);
 populateCategorySelects();
 
 function populateCategorySelects(){
@@ -341,7 +341,7 @@ function addRecord(){
   document.getElementById('inpName').value='';
   document.getElementById('inpAmount').value='';
 
-  document.getElementById('inpDate').value=today();
+  setTimeout(function(){document.getElementById('inpDate').value=today();},50);
   refreshHome();
   switchTab('list');
 }
@@ -539,9 +539,11 @@ function confirmCancel(){document.getElementById('confirmDialog').classList.remo
 function initAnalysis(){
   populateAnalysisSelects();
   const d=new Date();
-  document.getElementById('analysisDateStart').value=toDateStr(d);
-  document.getElementById('analysisDateEnd').value=toDateStr(d);
-  runAnalysis();
+  setTimeout(function(){
+    document.getElementById('analysisDateStart').value=toDateStr(d);
+    document.getElementById('analysisDateEnd').value=toDateStr(d);
+    runAnalysis();
+  },50);
 }
 function populateAnalysisSelects(){
   const sel=document.getElementById('analysisCategory');
