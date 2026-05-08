@@ -162,6 +162,30 @@ body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg
   </div>
 </div>
 
+<!-- ANALYSIS -->
+<div class="page" id="page-analysis">
+  <div class="page-title">分析</div>
+  <div class="card">
+    <div class="card-title">按分类查询</div>
+    <div class="input-group"><label>分类</label><select id="analysisCategory" onchange="runAnalysis()"></select></div>
+    <div style="display:flex;gap:8px">
+      <div class="input-group" style="flex:1"><label>开始日期</label><input type="date" id="analysisDateStart" onchange="runAnalysis()"></div>
+      <div class="input-group" style="flex:1"><label>结束日期</label><input type="date" id="analysisDateEnd" onchange="runAnalysis()"></div>
+    </div>
+    <div id="analysisResult" style="margin-top:12px"></div>
+  </div>
+  <div class="card">
+    <div class="card-title">快捷查询</div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px">
+      <button class="btn btn-sm btn-secondary" onclick="quickAnalysis('today')" style="flex:1;min-width:70px">今天</button>
+      <button class="btn btn-sm btn-secondary" onclick="quickAnalysis('yesterday')" style="flex:1;min-width:70px">昨天</button>
+      <button class="btn btn-sm btn-secondary" onclick="quickAnalysis('week')" style="flex:1;min-width:70px">本周</button>
+      <button class="btn btn-sm btn-secondary" onclick="quickAnalysis('lastweek')" style="flex:1;min-width:70px">上周</button>
+      <button class="btn btn-sm btn-secondary" onclick="quickAnalysis('lastmonth')" style="flex:1;min-width:70px">上月</button>
+    </div>
+  </div>
+</div>
+
 <!-- SETTINGS -->
 <div class="page" id="page-settings">
   <div class="page-title">设置</div>
@@ -185,6 +209,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg
   <button class="tab" data-tab="stats" onclick="switchTab('stats')">
     <svg><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
     <span>统计</span>
+  </button>
+  <button class="tab" data-tab="analysis" onclick="switchTab('analysis')">
+    <svg><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+    <span>分析</span>
   </button>
   <button class="tab" data-tab="settings" onclick="switchTab('settings')">
     <svg><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
@@ -284,6 +312,7 @@ function switchTab(name){
   if(name==='home') refreshHome();
   if(name==='list') renderList();
   if(name==='stats') renderStats();
+  if(name==='analysis') initAnalysis()
   if(name==='settings') {}
 }
 
@@ -506,6 +535,77 @@ function showConfirm(text,cb){
 }
 function confirmOk(){document.getElementById('confirmDialog').classList.remove('active');if(confirmCallback)confirmCallback()}
 function confirmCancel(){document.getElementById('confirmDialog').classList.remove('active');confirmCallback=null}
+// ====== ANALYSIS ======
+function initAnalysis(){
+  populateAnalysisSelects();
+  const d=new Date();
+  document.getElementById('analysisDateStart').value=toDateStr(d);
+  document.getElementById('analysisDateEnd').value=toDateStr(d);
+  runAnalysis();
+}
+function populateAnalysisSelects(){
+  const sel=document.getElementById('analysisCategory');
+  sel.innerHTML='<option value="">全部分类</option>';
+  getCategories().forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=c;sel.appendChild(o)});
+}
+function getDateRange(range){
+  const d=new Date();const y=d.getFullYear(),m=d.getMonth(),w=d.getDay();
+  const wd=w===0?7:w; // Sunday=7, Monday=1...
+  const ranges={
+    today:[d,d],
+    yesterday:[new Date(y,m,d.getDate()-1),new Date(y,m,d.getDate()-1)],
+    week:[new Date(y,m,d.getDate()-wd+1),d],
+    lastweek:[new Date(y,m,d.getDate()-wd-6),new Date(y,m,d.getDate()-wd)],
+    month:[new Date(y,m,1),d],
+    lastmonth:[new Date(y,m-1,1),new Date(y,m,0)]
+  };
+  return ranges[range]||[d,d];
+}
+function toDateStr(d){
+  const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),dd=String(d.getDate()).padStart(2,'0');
+  return y+'-'+m+'-'+dd;
+}
+function quickAnalysis(range){
+  const [s,e]=getDateRange(range);
+  document.getElementById('analysisDateStart').value=toDateStr(s);
+  document.getElementById('analysisDateEnd').value=toDateStr(e);
+  runAnalysis();
+}
+function runAnalysis(){
+  const cat=document.getElementById('analysisCategory').value;
+  const ds=document.getElementById('analysisDateStart').value;
+  const de=document.getElementById('analysisDateEnd').value;
+  if(!ds||!de){alert('请选择日期范围');return}
+  let records=getRecords().filter(r=>r.type==='expense'&&r.date>=ds&&r.date<=de);
+  if(cat) records=records.filter(r=>r.category===cat);
+  records.sort((a,b)=>a.ts-b.ts);
+  const total=records.reduce((s,r)=>s+r.amount,0);
+  const catSum={};records.forEach(r=>{catSum[r.category]=(catSum[r.category]||0)+r.amount});
+  const entries=Object.entries(catSum).sort((a,b)=>b[1]-a[1]);
+  const days=Math.max(1,Math.ceil((new Date(de)-new Date(ds))/(86400000))+1);
+  let html='';
+  html+='<div style="display:flex;gap:8px;margin-bottom:10px">';
+  html+='<div class="summary-item" style="flex:1"><div class="num" style="font-size:20px">¥'+total.toFixed(2)+'</div><div class="label" style="font-size:11px">合计</div></div>';
+  html+='<div class="summary-item" style="flex:1"><div class="num" style="font-size:20px">'+records.length+'</div><div class="label" style="font-size:11px">笔数</div></div>';
+  html+='<div class="summary-item" style="flex:1"><div class="num" style="font-size:20px">¥'+(records.length>0?(total/records.length).toFixed(2):'0.00')+'</div><div class="label" style="font-size:11px">笔均</div></div>';
+  html+='</div>';
+  if(!cat&&entries.length>1){
+    html+='<div style="font-size:14px;font-weight:600;margin-bottom:6px;color:var(--text2)">分类分布</div>';
+    entries.forEach(([c,a],i)=>{
+      const pct=(a/total*100).toFixed(1);
+      html+='<div class="stats-cat-item"><span style="width:10px;height:10px;border-radius:2px;background:var(--primary);flex-shrink:0"></span><span style="flex:1;font-size:14px">'+c+'</span><span style="font-size:13px;color:var(--text2)">'+pct+'%</span><span style="font-weight:600;font-size:14px;width:60px;text-align:right">¥'+a.toFixed(2)+'</span></div>';
+    });
+  }
+  if(records.length>0){
+    html+='<div style="font-size:14px;font-weight:600;margin:10px 0 6px;color:var(--text2)">明细</div>';
+    records.forEach(r=>{
+      html+='<div class="list-item"><div class="info"><div class="name">'+(r.name||r.category)+(r.note?' - '+escHtml(r.note):'')+'</div><div class="meta">'+r.date+' · '+r.category+(r.account?' · '+r.account:'')+'</div></div><div class="amount" style="color:var(--danger);font-size:15px">¥'+r.amount.toFixed(2)+'</div></div>';
+    });
+  }
+  if(records.length===0) html+='<div style="text-align:center;padding:20px;color:var(--text2)">该范围内没有记录</div>';
+  document.getElementById('analysisResult').innerHTML=html;
+}
+
 function showCategoryDetail(cat){
   const records=getRecords().filter(r=>r.category===cat&&r.type==='expense');
   records.sort((a,b)=>b.ts-a.ts);
