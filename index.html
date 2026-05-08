@@ -410,7 +410,7 @@ function showCategoryManager(){
 function closeCatModal(){document.getElementById('catModal').classList.remove('active');document.getElementById('newCatName').value=''}
 function renderCatList(){
   const cats=getCategories();
-  document.getElementById('catList').innerHTML=cats.map((c,i)=>'<div class="list-item"><span style="flex:1;font-size:14px">'+c+'</span>'+(i>=DEFAULT_CATS.length?'<button class="btn-icon" onclick="removeCategory('+i+')">&#10005;</button>':'<span style="color:var(--text2);font-size:12px">内置</span>')+'</div>').join('');
+  document.getElementById('catList').innerHTML=cats.map((c,i)=>'<div class="list-item"><span style="flex:1;font-size:14px">'+c+'</span><button class="btn-icon" onclick="removeCategory('+i+')">&#10005;</button></div>').join('');
 }
 function addCategory(){
   const name=document.getElementById('newCatName').value.trim();if(!name)return;
