@@ -349,15 +349,11 @@ function renderList(){
   const records=getRecords();
   const keyword=document.getElementById('searchInput').value.trim().toLowerCase();
   const catFilter=document.getElementById('filterCategory').value;
-  const ds=document.getElementById('filterDateStart').value;
-  const de=document.getElementById('filterDateEnd').value;
+  const acctFilter=document.getElementById('filterAccount').value;
   let filtered=records;
   if(keyword) filtered=filtered.filter(r=>(r.name||'').toLowerCase().includes(keyword));
   if(catFilter) filtered=filtered.filter(r=>r.category===catFilter);
-  const acctFilter=document.getElementById('filterAccount').value;
   if(acctFilter) filtered=filtered.filter(r=>r.account===acctFilter);
-  if(ds) filtered=filtered.filter(r=>r.date>=ds);
-  if(de) filtered=filtered.filter(r=>r.date<=de);
   const grouped={};
   filtered.forEach(r=>{if(!grouped[r.date]) grouped[r.date]=[];grouped[r.date].push(r)});
   const dates=Object.keys(grouped).sort().reverse();
