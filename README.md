@@ -9,6 +9,8 @@
 - 支付账户：微信支付 / 支付宝 / 银行卡 / 亲情卡
 - 折线图：显示最近 7 天支出趋势（含零支出日）
 - 数据存在手机本地（localStorage），不上传任何服务器
+- 支持 CSV 智能导入、JSON 完整备份、Obsidian 同步导出
+- 支持自定义快捷账单，一键记录固定支出
 - 支持添加到手机主屏幕（PWA），离线可用
 
 ## 使用方式
@@ -32,11 +34,12 @@ bill-pwa/
 ## 数据存储
 
 所有数据存在浏览器的 `localStorage` 中：
-- key: `ledger_bills` — 全部账单记录（JSON 数组）
+- key: `ledger_records` — 全部账单记录（JSON 数组）
 - key: `ledger_categories` — 支出类别列表
 - key: `ledger_accounts` — 支付账户列表
+- key: `ledger_shortcuts` — 快捷账单模板
 
-**注意：** 数据完全本地化，换设备、清缓存、使用隐私模式都会丢失数据。建议定期从 Obsidian 的流水记录备份。
+**注意：** 数据完全本地化，换设备、清缓存、使用隐私模式都会丢失数据。建议定期导出 JSON 完整备份；CSV 适合账单合并导入，JSON 适合完整恢复账单、分类、账户和快捷账单。
 
 ## 技术栈
 
@@ -63,5 +66,6 @@ git push origin main
 
 ## 数据备份
 
-PWA 的本地数据可以用脚本导入/导出。备份脚本在：
-`~/Projects/账单/add_bill.py`（可将记录录入 Obsidian 流水）
+- CSV 导出/导入：适合表格查看和账单合并导入，导入时会自动跳过重复账单。
+- JSON 完整备份/恢复：适合防丢和换设备，包含账单、分类、账户和快捷账单。
+- Obsidian 同步导出：生成 Markdown 中转文件，后续可在电脑端拆分导入到 `Projects/账单/流水`。

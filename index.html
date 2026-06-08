@@ -101,7 +101,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg
 /* Settings */
 .setting-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border)}
 .setting-row:last-child{border:none}
-.setting-row .label{font-size:14px}
+.setting-row .label{font-size:14px;padding-right:12px}
+.setting-row .btn{width:auto;min-width:76px;flex-shrink:0}
+.setting-row .hint{font-size:12px;color:var(--text2);margin-top:2px}
+.shortcut-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.shortcut-btn{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:left;color:var(--text);cursor:pointer;box-shadow:var(--shadow)}
+.shortcut-btn:active{opacity:.7}
+.shortcut-btn .name{font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.shortcut-btn .meta{font-size:12px;color:var(--text2);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.backup-status{font-size:12px;color:var(--text2);line-height:1.5;margin:4px 0 10px}
+.backup-status.warning{color:#b45309}
 /* Skeleton */
 .skeleton{background:linear-gradient(90deg,var(--border) 25%,var(--card) 50%,var(--border) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:6px}
 @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
@@ -122,6 +131,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg
   <div class="home-summary">
     <div class="summary-item"><div class="num" id="todayCount">0</div><div class="label">今日笔数</div></div>
     <div class="summary-item"><div class="num" id="todayTotal">0.00</div><div class="label">今日支出</div></div>
+  </div>
+  <div class="card" id="shortcutCard" style="display:none">
+    <div class="card-title">快捷账单</div>
+    <div class="shortcut-grid" id="shortcutList"></div>
   </div>
   <div class="card">
     <div class="card-title">记一笔</div>
@@ -189,9 +202,20 @@ body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg
   <div class="page-title">设置</div>
   <div class="card">
     <div class="setting-row"><span class="label">分类管理</span><button class="btn btn-sm btn-secondary" onclick="showCategoryManager()">管理</button></div>
+    <div class="setting-row"><span class="label">快捷账单</span><button class="btn btn-sm btn-secondary" onclick="showShortcutManager()">管理</button></div>
     <div class="setting-row"><span class="label">导出 CSV</span><button class="btn btn-sm btn-secondary" onclick="exportCSV()">导出</button></div>
+    <div class="setting-row"><span class="label">导入 CSV</span><button class="btn btn-sm btn-secondary" onclick="chooseCSVImport()">导入</button></div>
+    <div class="setting-row"><span class="label">完整备份 JSON</span><button class="btn btn-sm btn-secondary" onclick="exportBackupJSON()">备份</button></div>
+    <div class="setting-row"><span class="label">恢复 JSON 备份</span><button class="btn btn-sm btn-secondary" onclick="chooseBackupRestore()">恢复</button></div>
+    <div class="setting-row"><span class="label">Obsidian 同步导出</span><button class="btn btn-sm btn-secondary" onclick="exportObsidianSync()">导出</button></div>
     <div class="setting-row"><span class="label">清除全部数据</span><button class="btn btn-sm btn-danger" onclick="confirmClear()">清除</button></div>
   </div>
+  <div class="card">
+    <div class="card-title">备份状态</div>
+    <div id="backupStatus" class="backup-status">未检查</div>
+  </div>
+  <input type="file" id="csvImportFile" accept=".csv,text/csv" style="display:none" onchange="importCSVFile(event)">
+  <input type="file" id="backupRestoreFile" accept=".json,application/json" style="display:none" onchange="restoreBackupJSON(event)">
 </div>
 
 <!-- BOTTOM TABS -->
@@ -241,6 +265,21 @@ body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg
   </div>
 </div>
 
+<!-- SHORTCUT MANAGER MODAL -->
+<div class="modal-overlay" id="shortcutModal">
+  <div class="modal">
+    <h3>快捷账单</h3>
+    <div id="shortcutManageList"></div>
+    <div class="input-group" style="margin-top:8px"><label>名称</label><input type="text" id="shortcutName" placeholder="如：校园卡充值"></div>
+    <div class="input-group"><label>金额</label><input type="number" id="shortcutAmount" placeholder="0.00" step="0.01" inputmode="decimal"></div>
+    <div class="input-group"><label>分类</label><select id="shortcutCategory"></select></div>
+    <div class="input-group"><label>账户</label><select id="shortcutAccount"></select></div>
+    <div class="input-group"><label>备注</label><input type="text" id="shortcutNote" placeholder="可选"></div>
+    <button class="btn btn-primary" onclick="saveShortcut()">保存快捷账单</button>
+    <div class="btn-row"><button class="btn btn-secondary" onclick="closeShortcutModal()">完成</button></div>
+  </div>
+</div>
+
 <!-- DETAIL MODAL -->
 <div class="modal-overlay" id="detailModal">
   <div class="modal" style="max-height:80vh;overflow-y:auto">
@@ -261,36 +300,51 @@ body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg
 // ====== DATA ======
 const STORAGE_RECORDS = 'ledger_records';
 const STORAGE_CATS = 'ledger_categories';
+const STORAGE_ACCOUNTS = 'ledger_accounts';
+const STORAGE_SHORTCUTS = 'ledger_shortcuts';
+const STORAGE_BACKUP_AT = 'ledger_last_backup_at';
+const STORAGE_BACKUP_SIGNATURE = 'ledger_last_backup_signature';
 const DEFAULT_CATS = ['餐饮','App订阅','日用','交通','学习','游戏','娱乐活动','AI','电子产品及配件','家庭开销','人情世故','恋爱支出','医疗健体'];
 const DEFAULT_ACCOUNTS = ['微信支付','支付宝','银行卡','亲情卡'];
 
-function getRecords(){return JSON.parse(localStorage.getItem(STORAGE_RECORDS)||'[]')}
+function readJSON(key,fallback){
+  try{return JSON.parse(localStorage.getItem(key)||JSON.stringify(fallback))}
+  catch(e){return fallback}
+}
+function getRecords(){return readJSON(STORAGE_RECORDS,[])}
 function saveRecords(r){localStorage.setItem(STORAGE_RECORDS,JSON.stringify(r))}
-function getCategories(){return JSON.parse(localStorage.getItem(STORAGE_CATS)||JSON.stringify(DEFAULT_CATS))}
+function getCategories(){return readJSON(STORAGE_CATS,DEFAULT_CATS)}
 function saveCategories(c){localStorage.setItem(STORAGE_CATS,JSON.stringify(c))}
-function getAccounts(){return JSON.parse(localStorage.getItem('ledger_accounts')||JSON.stringify(DEFAULT_ACCOUNTS))}
-function saveAccounts(a){localStorage.setItem('ledger_accounts',JSON.stringify(a))}
+function getAccounts(){return readJSON(STORAGE_ACCOUNTS,DEFAULT_ACCOUNTS)}
+function saveAccounts(a){localStorage.setItem(STORAGE_ACCOUNTS,JSON.stringify(a))}
+function getShortcuts(){return readJSON(STORAGE_SHORTCUTS,[])}
+function saveShortcuts(s){localStorage.setItem(STORAGE_SHORTCUTS,JSON.stringify(s))}
 function genId(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
-function today(){return new Date().toISOString().slice(0,10)}
+function today(){return toDateStr(new Date())}
 function now(){const d=new Date();return d.toTimeString().slice(0,5)}
 
 // ====== INIT ======
-saveCategories(DEFAULT_CATS);
-saveAccounts(DEFAULT_ACCOUNTS);
+initStorage();
 setTimeout(function(){document.getElementById('inpDate').value=today();},50);
 populateCategorySelects();
+
+function initStorage(){
+  if(localStorage.getItem(STORAGE_CATS)===null) saveCategories(DEFAULT_CATS);
+  if(localStorage.getItem(STORAGE_ACCOUNTS)===null) saveAccounts(DEFAULT_ACCOUNTS);
+  if(localStorage.getItem(STORAGE_SHORTCUTS)===null) saveShortcuts([]);
+}
 
 function populateCategorySelects(){
   const cats=getCategories();
   const accts=getAccounts();
-  ['inpCategory','editCategory','filterCategory'].forEach(id=>{
+  ['inpCategory','editCategory','filterCategory','shortcutCategory'].forEach(id=>{
     const sel=document.getElementById(id);
     if(!sel) return;
     if(id==='filterCategory') sel.innerHTML='<option value="">全部分类</option>';
     else sel.innerHTML='';
     cats.forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=c;sel.appendChild(o)});
   });
-  ['inpAccount','editAccount','filterAccount'].forEach(id=>{
+  ['inpAccount','editAccount','filterAccount','shortcutAccount'].forEach(id=>{
     const sel=document.getElementById(id);
     if(!sel) return;
     sel.innerHTML='';
@@ -311,7 +365,7 @@ function switchTab(name){
   if(name==='list') renderList();
   if(name==='stats') renderStats();
   if(name==='analysis') initAnalysis()
-  if(name==='settings') {}
+  if(name==='settings') renderBackupStatus()
 }
 
 // ====== HOME ======
@@ -321,6 +375,22 @@ function refreshHome(){
   const todayRecs=records.filter(r=>r.date===d);
   document.getElementById('todayCount').textContent=todayRecs.length;
   document.getElementById('todayTotal').textContent=todayRecs.reduce((s,r)=>s+r.amount,0).toFixed(2);
+  renderShortcuts();
+}
+
+function renderShortcuts(){
+  const shortcuts=getShortcuts();
+  const card=document.getElementById('shortcutCard');
+  const list=document.getElementById('shortcutList');
+  if(!card||!list)return;
+  if(shortcuts.length===0){card.style.display='none';list.innerHTML='';return}
+  card.style.display='block';
+  list.innerHTML=shortcuts.map(s=>
+    '<button class="shortcut-btn" onclick="addShortcutRecord(\''+s.id+'\')">'+
+    '<div class="name">'+escHtml(s.name)+'</div>'+
+    '<div class="meta">¥'+Number(s.amount).toFixed(2)+' · '+escHtml(s.category)+' · '+escHtml(s.account||'')+'</div>'+
+    '</button>'
+  ).join('');
 }
 
 function addRecord(){
@@ -340,6 +410,28 @@ function addRecord(){
   document.getElementById('inpAmount').value='';
 
   setTimeout(function(){document.getElementById('inpDate').value=today();},50);
+  refreshHome();
+  switchTab('list');
+}
+
+function addShortcutRecord(id){
+  const shortcut=getShortcuts().find(s=>s.id===id);
+  if(!shortcut)return;
+  const amount=parseFloat(shortcut.amount);
+  if(!shortcut.name||!amount||amount<=0){alert('快捷账单配置不完整');return}
+  const records=getRecords();
+  records.unshift({
+    id:genId(),
+    name:shortcut.name,
+    amount,
+    category:shortcut.category,
+    account:shortcut.account,
+    date:today(),
+    note:shortcut.note||'',
+    time:now(),
+    type:'expense'
+  });
+  saveRecords(records);
   refreshHome();
   switchTab('list');
 }
@@ -420,6 +512,70 @@ function removeCategory(i){
   const cats=getCategories();cats.splice(i,1);saveCategories(cats);renderCatList();populateCategorySelects();
 }
 
+// ====== SHORTCUT MANAGER ======
+let editingShortcutId=null;
+function showShortcutManager(){
+  editingShortcutId=null;
+  clearShortcutForm();
+  populateCategorySelects();
+  renderShortcutManager();
+  document.getElementById('shortcutModal').classList.add('active');
+}
+function closeShortcutModal(){
+  document.getElementById('shortcutModal').classList.remove('active');
+  editingShortcutId=null;
+  clearShortcutForm();
+  renderShortcuts();
+}
+function clearShortcutForm(){
+  ['shortcutName','shortcutAmount','shortcutNote'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=''});
+}
+function renderShortcutManager(){
+  const shortcuts=getShortcuts();
+  const el=document.getElementById('shortcutManageList');
+  if(shortcuts.length===0){el.innerHTML='<div style="color:var(--text2);font-size:14px;padding:8px 0">暂无快捷账单</div>';return}
+  el.innerHTML=shortcuts.map(s=>
+    '<div class="list-item"><div class="info"><div class="name">'+escHtml(s.name)+'</div>'+
+    '<div class="meta">¥'+Number(s.amount).toFixed(2)+' · '+escHtml(s.category)+' · '+escHtml(s.account||'')+'</div></div>'+
+    '<div class="actions"><button class="btn-icon" onclick="editShortcut(\''+s.id+'\')">&#9998;</button><button class="btn-icon" onclick="removeShortcut(\''+s.id+'\')">&#10005;</button></div></div>'
+  ).join('');
+}
+function saveShortcut(){
+  const name=document.getElementById('shortcutName').value.trim();
+  const amount=parseFloat(document.getElementById('shortcutAmount').value);
+  const category=document.getElementById('shortcutCategory').value;
+  const account=document.getElementById('shortcutAccount').value;
+  const note=document.getElementById('shortcutNote').value.trim();
+  if(!name){alert('请输入快捷账单名称');return}
+  if(!amount||amount<=0){alert('请输入有效金额');return}
+  if(!category){alert('请选择分类');return}
+  const shortcuts=getShortcuts();
+  const item={id:editingShortcutId||genId(),name,amount,category,account,note};
+  const idx=shortcuts.findIndex(s=>s.id===editingShortcutId);
+  if(idx>-1)shortcuts[idx]=item;else shortcuts.push(item);
+  saveShortcuts(shortcuts);
+  editingShortcutId=null;
+  clearShortcutForm();
+  renderShortcutManager();
+  renderShortcuts();
+}
+function editShortcut(id){
+  const s=getShortcuts().find(x=>x.id===id);if(!s)return;
+  editingShortcutId=id;
+  document.getElementById('shortcutName').value=s.name||'';
+  document.getElementById('shortcutAmount').value=s.amount||'';
+  document.getElementById('shortcutCategory').value=s.category||'';
+  document.getElementById('shortcutAccount').value=s.account||'';
+  document.getElementById('shortcutNote').value=s.note||'';
+}
+function removeShortcut(id){
+  showConfirm('确定删除这个快捷账单？',()=>{
+    saveShortcuts(getShortcuts().filter(s=>s.id!==id));
+    renderShortcutManager();
+    renderShortcuts();
+  });
+}
+
 // ====== STATS ======
 function renderStats(){
   const records=getRecords();
@@ -469,10 +625,11 @@ function renderLine(records,month){
   const container=document.getElementById('lineContainer');
   if(!container)return;
   // Always show last 7 days (including zero-expense days)
-  const todayStr=new Date().toISOString().slice(0,10);
-  const d=new Date(todayStr);
+  const todayStr=today();
+  const [ty,tm,td]=todayStr.split('-').map(Number);
+  const d=new Date(ty,tm-1,td);
   const allDays=[];const dayMap={};
-  for(let i=6;i>=0;i--){const cd=new Date(d);cd.setDate(cd.getDate()-i);const s=cd.toISOString().slice(0,10);allDays.push(s);dayMap[s]=0}
+  for(let i=6;i>=0;i--){const cd=new Date(d);cd.setDate(cd.getDate()-i);const s=toDateStr(cd);allDays.push(s);dayMap[s]=0}
   const recs=records.filter(r=>r.date.startsWith(month)&&r.type==='expense');
   recs.forEach(r=>{if(dayMap[r.date]!==undefined)dayMap[r.date]+=r.amount});
   const days=allDays;const vals=days.map(d=>dayMap[d]);
@@ -507,18 +664,159 @@ function renderLine(records,month){
   });
   const svg='<svg width="'+w+'" height="'+h+'" viewBox="0 0 '+w+' '+h+'" style="display:block;background:var(--card)"><defs><linearGradient id="lg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#4A7C59" stop-opacity="0.15"/><stop offset="100%" stop-color="#4A7C59" stop-opacity="0.01"/></linearGradient><filter id="ls"><feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#4A7C59" flood-opacity="0.3"/></filter></defs>'+grid+area+pts+dots+labels+'</svg>';
   container.innerHTML=svg;
-}function exportCSV(){
+}function csvCell(v){
+  const s=String(v??'');
+  return /[",\n\r]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s;
+}
+function downloadFile(filename,content,type){
+  const blob=new Blob([content],{type:type});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download=filename;a.style.display='none';
+  document.body.appendChild(a);a.click();
+  setTimeout(()=>{document.body.removeChild(a);URL.revokeObjectURL(url)},100);
+}
+function recordSignature(records){
+  return records.map(r=>[r.id,r.date,r.name,r.category,r.account,r.amount,r.time].join('|')).sort().join('\n');
+}
+function markBackupComplete(){
+  localStorage.setItem(STORAGE_BACKUP_AT,new Date().toISOString());
+  localStorage.setItem(STORAGE_BACKUP_SIGNATURE,recordSignature(getRecords()));
+  renderBackupStatus();
+}
+function renderBackupStatus(){
+  const el=document.getElementById('backupStatus');if(!el)return;
+  const records=getRecords();
+  const at=localStorage.getItem(STORAGE_BACKUP_AT);
+  const changed=localStorage.getItem(STORAGE_BACKUP_SIGNATURE)!==recordSignature(records);
+  el.className='backup-status'+(changed?' warning':'');
+  el.innerHTML='当前账单 '+records.length+' 条<br>'+
+    (at?'上次完整备份：'+new Date(at).toLocaleString():'还没有完整备份')+'<br>'+
+    (changed?'有未备份变更，建议导出 JSON 完整备份':'当前记录与上次完整备份一致');
+}
+function exportCSV(){
   const records=getRecords();
   if(records.length===0){alert('没有数据');return}
   let csv='\ufeff日期,名称,分类,账户,金额,时间\n';
-  records.forEach(r=>{csv+=r.date+','+(r.name||'')+','+r.category+','+(r.account||'')+','+r.amount+','+r.time+'\n'});
-  const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');
-  a.href=url;a.download='ledger_'+today()+'.csv';a.style.display='none';
-  document.body.appendChild(a);a.click();
-  setTimeout(()=>{document.body.removeChild(a);URL.revokeObjectURL(url)},100);
+  records.forEach(r=>{csv+=[r.date,r.name||'',r.category,r.account||'',r.amount,r.time||''].map(csvCell).join(',')+'\n'});
+  downloadFile('ledger_'+today()+'.csv',csv,'text/csv;charset=utf-8');
   alert('已导出 '+records.length+' 条数据');
+}
+function chooseCSVImport(){document.getElementById('csvImportFile').click()}
+function parseCSV(text){
+  const rows=[];let row=[],cell='',inQuotes=false;
+  text=text.replace(/^\ufeff/,'');
+  for(let i=0;i<text.length;i++){
+    const ch=text[i],next=text[i+1];
+    if(inQuotes&&ch==='"'&&next==='"'){cell+='"';i++;continue}
+    if(ch==='"'){inQuotes=!inQuotes;continue}
+    if(ch===','&&!inQuotes){row.push(cell);cell='';continue}
+    if((ch==='\n'||ch==='\r')&&!inQuotes){
+      if(ch==='\r'&&next==='\n')i++;
+      row.push(cell);cell='';
+      if(row.some(v=>v.trim()!==''))rows.push(row);
+      row=[];continue;
+    }
+    cell+=ch;
+  }
+  row.push(cell);
+  if(row.some(v=>v.trim()!==''))rows.push(row);
+  return rows;
+}
+function normalizeImportKey(r){
+  return [r.date||'',r.name||'',r.category||'',r.account||'',Number(r.amount||0).toFixed(2),r.time||''].join('|');
+}
+function importCSVFile(event){
+  const file=event.target.files[0];event.target.value='';
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=()=>{
+    const rows=parseCSV(String(reader.result||''));
+    if(rows.length<2){alert('CSV 没有可导入的数据');return}
+    const header=rows[0].map(h=>h.trim());
+    const idx={
+      date:header.indexOf('日期'),
+      name:header.indexOf('名称'),
+      category:header.indexOf('分类'),
+      account:header.indexOf('账户'),
+      amount:header.indexOf('金额'),
+      time:header.indexOf('时间')
+    };
+    if(idx.date<0||idx.name<0||idx.category<0||idx.amount<0){alert('CSV 表头不匹配，请使用应用导出的格式');return}
+    const records=getRecords();
+    const existing=new Set(records.map(normalizeImportKey));
+    const cats=getCategories(),accts=getAccounts();
+    let added=0,skipped=0,invalid=0;
+    rows.slice(1).forEach(row=>{
+      const amount=parseFloat(row[idx.amount]);
+      const date=(row[idx.date]||'').trim();
+      const name=(row[idx.name]||'').trim();
+      const category=(row[idx.category]||'').trim();
+      const account=idx.account>-1?(row[idx.account]||'').trim():'';
+      const time=idx.time>-1?(row[idx.time]||'').trim():'';
+      if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||!name||!category||!amount||amount<=0){invalid++;return}
+      const rec={id:genId(),date,name,category,account,amount,time:time||now(),note:'',type:'expense'};
+      const key=normalizeImportKey(rec);
+      if(existing.has(key)){skipped++;return}
+      records.unshift(rec);existing.add(key);added++;
+      if(!cats.includes(category))cats.push(category);
+      if(account&&!accts.includes(account))accts.push(account);
+    });
+    saveRecords(records);
+    saveCategories(cats);
+    saveAccounts(accts);
+    populateCategorySelects();refreshHome();renderBackupStatus();
+    alert('导入完成：新增 '+added+' 条，跳过重复 '+skipped+' 条，无效 '+invalid+' 条');
+  };
+  reader.readAsText(file,'utf-8');
+}
+function exportBackupJSON(){
+  const backup={
+    version:1,
+    exportedAt:new Date().toISOString(),
+    records:getRecords(),
+    categories:getCategories(),
+    accounts:getAccounts(),
+    shortcuts:getShortcuts()
+  };
+  downloadFile('ledger_backup_'+today()+'.json',JSON.stringify(backup,null,2),'application/json;charset=utf-8');
+  markBackupComplete();
+  alert('完整备份已导出');
+}
+function chooseBackupRestore(){document.getElementById('backupRestoreFile').click()}
+function restoreBackupJSON(event){
+  const file=event.target.files[0];event.target.value='';
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=()=>{
+    let data;
+    try{data=JSON.parse(String(reader.result||''))}
+    catch(e){alert('JSON 备份文件无法解析');return}
+    if(!Array.isArray(data.records)){alert('备份文件缺少账单数据');return}
+    showConfirm('确定用这个 JSON 备份恢复？当前本地数据会被替换。',()=>{
+      saveRecords(data.records);
+      saveCategories(Array.isArray(data.categories)?data.categories:DEFAULT_CATS);
+      saveAccounts(Array.isArray(data.accounts)?data.accounts:DEFAULT_ACCOUNTS);
+      saveShortcuts(Array.isArray(data.shortcuts)?data.shortcuts:[]);
+      populateCategorySelects();refreshHome();renderList();renderBackupStatus();
+      alert('JSON 备份已恢复');
+    });
+  };
+  reader.readAsText(file,'utf-8');
+}
+function exportObsidianSync(){
+  const records=getRecords();
+  if(records.length===0){alert('没有数据');return}
+  const sorted=records.slice().sort((a,b)=>(a.date||'').localeCompare(b.date||'')||(a.time||'').localeCompare(b.time||''));
+  let md='---\nsource: bill-pwa\nexported: '+new Date().toISOString()+'\ntarget: Projects/账单/流水\n---\n\n';
+  md+='# Bill PWA Obsidian 同步导出\n\n';
+  md+='> 手机 PWA 不能静默写入 Obsidian 文件夹；这份文件用于后续在电脑端拆分/导入到 `Projects/账单/流水`。\n\n';
+  md+='| 日期 | 名称 | 金额 | 分类 | 账户 | 时间 | 备注 |\n|---|---:|---:|---|---|---|---|\n';
+  sorted.forEach(r=>{
+    md+='| '+[r.date||'',r.name||'',Number(r.amount||0).toFixed(2),r.category||'',r.account||'',r.time||'',r.note||''].map(v=>String(v).replace(/\|/g,'/')).join(' | ')+' |\n';
+  });
+  downloadFile('ledger_obsidian_sync_'+today()+'.md',md,'text/markdown;charset=utf-8');
+  alert('Obsidian 同步文件已导出');
 }
 function confirmClear(){showConfirm('确定清除全部数据？此操作不可恢复。',()=>{localStorage.clear();location.reload()})}
 let confirmCallback=null;
