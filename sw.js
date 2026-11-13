@@ -1,5 +1,5 @@
-const CACHE = 'ledger-v4';
-const URLS = ['index.html','manifest.json','icon.svg'];
+const CACHE = 'ledger-v8';
+const URLS = ['index.html','bill-tools.js','manifest.json','icon.svg'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(URLS)));

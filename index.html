@@ -125,6 +125,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",sans-serif;backg
 /* Settings */
 .setting-row{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--border)}
 .setting-row:last-child{border:none}
+.setting-row[hidden]{display:none}
 .setting-row .label{font-size:16px;font-weight:650;padding-right:12px;color:var(--text)}
 .setting-row .btn{width:auto;min-width:78px;flex-shrink:0}
 .theme-select{width:auto;min-width:118px;padding:9px 30px 9px 12px;border:1px solid var(--border);border-radius:10px;background:var(--card-2);color:var(--text);font-size:14px;font-weight:700;box-shadow:var(--button-shadow)}
@@ -134,6 +135,26 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",sans-serif;backg
 .shortcut-btn:active{opacity:.82;transform:translateY(1px) scale(.99);box-shadow:var(--shadow-soft)}
 .shortcut-btn .name{font-size:15px;font-weight:750;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .shortcut-btn .meta{font-size:12px;color:var(--text2);margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.frequent-section{margin-bottom:18px}
+.section-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
+.section-heading h2{font-size:15px;font-weight:700}
+.text-action{border:0;background:none;color:var(--primary);font:inherit;font-size:14px;cursor:pointer;padding:8px 0}
+.frequent-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.frequent-list .shortcut-btn{min-height:76px;border-radius:8px;box-shadow:var(--shadow-soft)}
+.frequent-list .name,.frequent-list .meta{white-space:normal;overflow-wrap:anywhere}
+#frequentManageList{max-height:48vh;max-height:48dvh;overflow-y:auto;overscroll-behavior:contain;padding:2px}
+#frequentHomeList{max-height:264px;overflow-y:auto;overscroll-behavior:contain;padding:2px}
+.form-columns{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-columns>*{min-width:0}
+.status-line{font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:12px;overflow-wrap:anywhere}
+.rule-row{padding:14px 0;border-bottom:1px solid var(--border)}
+.rule-heading{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.rule-heading strong{font-size:15px;overflow-wrap:anywhere;min-width:0}
+.rule-actions{display:flex;align-items:center;justify-content:flex-end;gap:14px;margin-top:6px}
+.rule-actions input{width:18px;height:18px;accent-color:var(--primary)}
+.rule-actions label{display:flex;gap:6px;align-items:center;font-size:13px;color:var(--text2)}
+button:focus-visible{outline:2px solid var(--primary);outline-offset:3px}
+@media(prefers-reduced-motion:reduce){.page,.modal{animation:none}.shortcut-btn{transition:none}}
 .backup-status{font-size:13px;color:var(--text2);line-height:1.6;margin:2px 0 4px}
 .backup-status.warning{color:#A76618}
 /* Skeleton */
@@ -157,13 +178,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",sans-serif;backg
     <div class="summary-item"><div class="num" id="todayCount">0</div><div class="label">今日笔数</div></div>
     <div class="summary-item"><div class="num" id="todayTotal">0.00</div><div class="label">今日支出</div></div>
   </div>
+  <section class="frequent-section" id="frequentSection" hidden>
+    <div class="section-heading"><h2>常用账单</h2><button class="text-action" onclick="showFrequentManager()">全部</button></div>
+    <div class="frequent-list" id="frequentHomeList"></div>
+  </section>
+  <div class="status-line" id="recurringStatus" role="status" hidden></div>
   <div class="card" id="shortcutCard" style="display:none">
     <div class="card-title">快捷账单</div>
     <div class="shortcut-grid" id="shortcutList"></div>
   </div>
   <div class="card">
     <div class="card-title">记一笔</div>
-    <div class="input-group"><label>支出名称</label><input type="text" id="inpName" placeholder="如：午饭"></div>
+    <div class="input-group"><label for="inpName">支出名称</label><input type="text" id="inpName" placeholder="如：午饭" list="frequentNames" oninput="recognizeFrequentName()" autocomplete="off"><datalist id="frequentNames"></datalist></div>
     <div class="input-group"><label>金额</label><input type="number" id="inpAmount" placeholder="0.00" step="0.01" inputmode="decimal"></div>
     <div class="input-group"><label>分类</label><select id="inpCategory"></select></div>
     <div class="input-group"><label>账户</label><select id="inpAccount"></select></div>
@@ -229,6 +255,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",sans-serif;backg
     <div class="setting-row"><span class="label">界面主题</span><select id="themeSelect" class="theme-select" onchange="changeTheme()"><option value="forest">松林</option><option value="ocean">海雾</option><option value="ink">墨灰</option><option value="berry">莓酒</option></select></div>
     <div class="setting-row"><span class="label">分类管理</span><button class="btn btn-sm btn-secondary" onclick="showCategoryManager()">管理</button></div>
     <div class="setting-row"><span class="label">快捷账单</span><button class="btn btn-sm btn-secondary" onclick="showShortcutManager()">管理</button></div>
+    <div class="setting-row"><span class="label">常用账单</span><button class="btn btn-sm btn-secondary" onclick="showFrequentManager()">查看</button></div>
+    <div class="setting-row"><span class="label">统一历史账单名称</span><button class="btn btn-sm btn-secondary" onclick="normalizeHistoricalNames()">整理</button></div>
+    <div class="setting-row" id="nameBackupRow" hidden><span class="label">名称整理前备份</span><button class="btn btn-sm btn-secondary" onclick="downloadNameBackup()">导出</button></div>
+    <div class="setting-row"><span class="label">每月固定账单</span><button class="btn btn-sm btn-secondary" onclick="showRecurringManager()">管理</button></div>
     <div class="setting-row"><span class="label">导出 CSV</span><button class="btn btn-sm btn-secondary" onclick="exportCSV()">导出</button></div>
     <div class="setting-row"><span class="label">导入 CSV</span><button class="btn btn-sm btn-secondary" onclick="chooseCSVImport()">导入</button></div>
     <div class="setting-row"><span class="label">完整备份 JSON</span><button class="btn btn-sm btn-secondary" onclick="exportBackupJSON()">备份</button></div>
@@ -242,6 +272,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",sans-serif;backg
   </div>
   <input type="file" id="csvImportFile" accept=".csv,text/csv" style="display:none" onchange="importCSVFile(event)">
   <input type="file" id="backupRestoreFile" accept=".json,application/json" style="display:none" onchange="restoreBackupJSON(event)">
+  <input type="file" id="frequentImportFile" accept=".md,text/markdown,text/plain" style="display:none" onchange="importFrequentFile(event)">
 </div>
 
 <!-- BOTTOM TABS -->
@@ -306,6 +337,36 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",sans-serif;backg
   </div>
 </div>
 
+<div class="modal-overlay" id="frequentModal" role="dialog" aria-modal="true" aria-labelledby="frequentTitle">
+  <div class="modal">
+    <div class="section-heading"><h3 id="frequentTitle" style="margin:0">常用账单</h3><button class="text-action" onclick="closeFrequentModal()">完成</button></div>
+    <div class="input-group"><label for="frequentSearch">查找名称</label><input id="frequentSearch" type="search" oninput="renderFrequentManager()" placeholder="搜索常用项目"></div>
+    <div class="status-line" id="frequentSummary"></div>
+    <button class="text-action" style="margin-bottom:10px" onclick="document.getElementById('frequentImportFile').click()">从流水 MD 提取</button>
+    <div class="frequent-list" id="frequentManageList"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="recurringModal" role="dialog" aria-modal="true" aria-labelledby="recurringTitle">
+  <div class="modal">
+    <div class="section-heading"><h3 id="recurringTitle" style="margin:0">每月固定账单</h3><button class="text-action" onclick="closeRecurringModal()">完成</button></div>
+    <div id="recurringManageList"></div>
+    <form onsubmit="event.preventDefault();saveRecurringRule()" style="margin-top:18px">
+      <div class="input-group"><label for="recurringName">名称</label><input id="recurringName" required placeholder="如：iCloud 续费"></div>
+      <div class="form-columns">
+        <div class="input-group"><label for="recurringAmount">每月金额</label><input id="recurringAmount" type="number" required min="0.01" step="0.01" inputmode="decimal" placeholder="0.00"></div>
+        <div class="input-group"><label for="recurringDay">每月扣款日</label><input id="recurringDay" type="number" required min="1" max="31" step="1" inputmode="numeric" value="1"></div>
+      </div>
+      <div class="input-group"><label for="recurringStart">开始日期</label><input id="recurringStart" type="date" required></div>
+      <div class="input-group"><label for="recurringCategory">分类</label><select id="recurringCategory" required></select></div>
+      <div class="input-group"><label for="recurringAccount">账户</label><select id="recurringAccount" required></select></div>
+      <div class="input-group"><label for="recurringNote">备注</label><input id="recurringNote" placeholder="可选"></div>
+      <button class="btn btn-primary" id="recurringSave" type="submit">添加固定账单</button>
+      <button class="text-action" type="button" id="recurringCancelEdit" onclick="clearRecurringForm()" hidden>取消编辑</button>
+    </form>
+  </div>
+</div>
+
 <!-- DETAIL MODAL -->
 <div class="modal-overlay" id="detailModal">
   <div class="modal" style="max-height:80vh;overflow-y:auto">
@@ -322,12 +383,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",sans-serif;backg
   </div>
 </div>
 
+<script src="bill-tools.js"></script>
 <script>
 // ====== DATA ======
 const STORAGE_RECORDS = 'ledger_records';
 const STORAGE_CATS = 'ledger_categories';
 const STORAGE_ACCOUNTS = 'ledger_accounts';
 const STORAGE_SHORTCUTS = 'ledger_shortcuts';
+const STORAGE_RECURRING = 'ledger_recurring';
+const STORAGE_FREQUENT = 'ledger_frequent_templates';
+const STORAGE_NAME_BACKUP = 'ledger_before_name_cleanup';
 const STORAGE_BACKUP_AT = 'ledger_last_backup_at';
 const STORAGE_BACKUP_SIGNATURE = 'ledger_last_backup_signature';
 const STORAGE_THEME = 'ledger_theme';
@@ -346,6 +411,9 @@ function getAccounts(){return readJSON(STORAGE_ACCOUNTS,DEFAULT_ACCOUNTS)}
 function saveAccounts(a){localStorage.setItem(STORAGE_ACCOUNTS,JSON.stringify(a))}
 function getShortcuts(){return readJSON(STORAGE_SHORTCUTS,[])}
 function saveShortcuts(s){localStorage.setItem(STORAGE_SHORTCUTS,JSON.stringify(s))}
+function getRecurring(){return readJSON(STORAGE_RECURRING,[])}
+function saveRecurring(r){localStorage.setItem(STORAGE_RECURRING,JSON.stringify(r))}
+function getFrequentTemplates(){return readJSON(STORAGE_FREQUENT,[])}
 function getTheme(){return localStorage.getItem(STORAGE_THEME)||'forest'}
 function genId(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
 function today(){return toDateStr(new Date())}
@@ -379,14 +447,14 @@ function changeTheme(){
 function populateCategorySelects(){
   const cats=getCategories();
   const accts=getAccounts();
-  ['inpCategory','editCategory','filterCategory','shortcutCategory'].forEach(id=>{
+  ['inpCategory','editCategory','filterCategory','shortcutCategory','recurringCategory'].forEach(id=>{
     const sel=document.getElementById(id);
     if(!sel) return;
     if(id==='filterCategory') sel.innerHTML='<option value="">全部分类</option>';
     else sel.innerHTML='';
     cats.forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=c;sel.appendChild(o)});
   });
-  ['inpAccount','editAccount','filterAccount','shortcutAccount'].forEach(id=>{
+  ['inpAccount','editAccount','filterAccount','shortcutAccount','recurringAccount'].forEach(id=>{
     const sel=document.getElementById(id);
     if(!sel) return;
     sel.innerHTML='';
@@ -418,6 +486,187 @@ function refreshHome(){
   document.getElementById('todayCount').textContent=todayRecs.length;
   document.getElementById('todayTotal').textContent=todayRecs.reduce((s,r)=>s+r.amount,0).toFixed(2);
   renderShortcuts();
+  renderFrequentHome();
+}
+
+// Common bills only fill the form; the existing fixed-price shortcuts still record immediately.
+function commonBills(){
+  const local=BillTools.frequent(getRecords());
+  const saved=BillTools.mergeTemplates(getFrequentTemplates());
+  const templates=new Map(saved.map(r=>[BillTools.nameKey(r.name),r]));
+  local.forEach(r=>{const previous=templates.get(BillTools.nameKey(r.name));if(previous)r.count=Math.max(r.count,previous.count)});
+  const keys=new Set(local.map(r=>BillTools.nameKey(r.name)));
+  return local.concat(saved.filter(r=>!keys.has(BillTools.nameKey(r.name))))
+    .sort((a,b)=>b.count-a.count||String(b.last).localeCompare(String(a.last)));
+}
+function frequentButtons(el,items){
+  el.replaceChildren();
+  items.forEach(item=>{
+    const button=document.createElement('button');button.className='shortcut-btn';
+    const name=document.createElement('div');name.className='name';name.textContent=item.name;
+    const meta=document.createElement('div');meta.className='meta';meta.textContent=item.category+' · '+item.count+' 次';
+    button.append(name,meta);button.onclick=()=>fillFrequent(item);el.appendChild(button);
+  });
+}
+function renderFrequentHome(){
+  const items=commonBills();
+  document.getElementById('frequentSection').hidden=!items.length;
+  frequentButtons(document.getElementById('frequentHomeList'),items);
+  const list=document.getElementById('frequentNames');list.replaceChildren();
+  items.forEach(item=>{const option=document.createElement('option');option.value=item.name;list.appendChild(option)});
+}
+function selectKnownOption(id,value){
+  if(!value)return;
+  const select=document.getElementById(id);
+  if(!Array.from(select.options).some(o=>o.value===value)){
+    const option=document.createElement('option');option.value=value;option.textContent=value;select.appendChild(option);
+  }
+  select.value=value;
+}
+function fillFrequent(item){
+  closeFrequentModal();switchTab('home');
+  document.getElementById('inpName').value=item.name;
+  document.getElementById('inpAmount').value=Number(item.amount).toFixed(2);
+  document.getElementById('inpDate').value=today();
+  selectKnownOption('inpCategory',item.category);selectKnownOption('inpAccount',item.account);
+  const input=document.getElementById('inpAmount');input.focus();input.select();
+}
+function recognizeFrequentName(){
+  const key=BillTools.nameKey(document.getElementById('inpName').value);
+  const item=commonBills().find(r=>BillTools.nameKey(r.name)===key);
+  if(item){selectKnownOption('inpCategory',item.category);selectKnownOption('inpAccount',item.account)}
+}
+function showFrequentManager(){
+  document.getElementById('frequentSearch').value='';renderFrequentManager();
+  document.getElementById('frequentModal').classList.add('active');
+}
+function closeFrequentModal(){document.getElementById('frequentModal').classList.remove('active')}
+function renderFrequentManager(){
+  const all=commonBills(),key=BillTools.nameKey(document.getElementById('frequentSearch').value);
+  const items=all.filter(r=>BillTools.nameKey(r.name).includes(key));
+  document.getElementById('frequentSummary').textContent=all.length?'共 '+all.length+' 个项目':'暂无账单项目';
+  frequentButtons(document.getElementById('frequentManageList'),items);
+}
+async function importFrequentFile(event){
+  const file=event.target.files[0];event.target.value='';if(!file)return;
+  try{
+    const rows=BillTools.parseMarkdown(await file.text());
+    const templates=BillTools.frequent(rows);
+    if(!templates.length){alert('没有找到账单项目，请选择应用导出的 Obsidian 流水 MD');return}
+    const merged=new Map(getFrequentTemplates().map(r=>[BillTools.nameKey(r.name),r]));
+    templates.forEach(r=>merged.set(BillTools.nameKey(r.name),r));
+    localStorage.setItem(STORAGE_FREQUENT,JSON.stringify([...merged.values()]));
+    renderFrequentHome();renderFrequentManager();renderBackupStatus();
+    alert('已提取 '+templates.length+' 个常用项目，未导入历史账单');
+  }catch(e){alert('提取失败：'+e.message)}
+}
+
+function normalizeHistoricalNames(){
+  const records=getRecords(),normalized=BillTools.normalizeRecords(records);
+  const changes=records.map((r,i)=>({before:r.name,after:normalized[i].name})).filter(r=>r.before!==r.after);
+  if(!changes.length){alert('当前名称已统一，无需修改');return}
+  const examples=[...new Set(changes.map(r=>r.before+' → '+r.after))].slice(0,6).join('\n');
+  showConfirm('将统一 '+changes.length+' 笔账单的名称，不删除或合并记录。原名称保存在备注，整理前自动保留完整备份。\n\n'+examples,()=>{
+    try{
+      localStorage.setItem(STORAGE_NAME_BACKUP,JSON.stringify(createBackup()));
+      saveRecords(normalized);refreshHome();renderList();renderBackupStatus();
+      alert('已统一 '+changes.length+' 笔名称，账单数量与金额不变');
+    }catch(e){alert('整理失败，请检查存储空间。未能保存备份时不会修改账单。')}
+  });
+}
+function downloadNameBackup(){
+  const data=localStorage.getItem(STORAGE_NAME_BACKUP);
+  if(data)downloadFile('ledger_before_name_cleanup.json',data,'application/json;charset=utf-8');
+}
+
+let editingRecurringId=null;
+function clearRecurringForm(){
+  editingRecurringId=null;
+  ['recurringName','recurringAmount','recurringNote'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('recurringDay').value=new Date().getDate();
+  document.getElementById('recurringStart').value=today();
+  document.getElementById('recurringSave').textContent='添加固定账单';
+  document.getElementById('recurringCancelEdit').hidden=true;
+}
+function showRecurringManager(){
+  populateCategorySelects();clearRecurringForm();renderRecurringManager();
+  document.getElementById('recurringModal').classList.add('active');
+}
+function closeRecurringModal(){document.getElementById('recurringModal').classList.remove('active')}
+function renderRecurringManager(){
+  const list=document.getElementById('recurringManageList');list.replaceChildren();
+  if(!getRecurring().length){list.textContent='暂无固定账单';list.className='status-line';return}
+  list.className='';
+  getRecurring().forEach(rule=>{
+    const row=document.createElement('div');row.className='rule-row';
+    const heading=document.createElement('div');heading.className='rule-heading';
+    const name=document.createElement('strong');name.textContent=rule.name;
+    const price=document.createElement('span');price.textContent='¥'+Number(rule.amount).toFixed(2);heading.append(name,price);
+    const meta=document.createElement('div');meta.className='status-line';meta.style.marginBottom='0';
+    meta.textContent='每月 '+rule.day+' 日 · '+rule.category+' · '+rule.account+' · '+(rule.enabled?'下次 '+rule.nextDate:'已暂停');
+    const actions=document.createElement('div');actions.className='rule-actions';
+    const label=document.createElement('label'),toggle=document.createElement('input');toggle.type='checkbox';toggle.checked=rule.enabled;
+    toggle.onchange=()=>toggleRecurring(rule.id,toggle.checked);label.append(toggle,document.createTextNode('启用'));
+    const edit=document.createElement('button');edit.className='text-action';edit.textContent='编辑';edit.onclick=()=>editRecurring(rule.id);
+    const remove=document.createElement('button');remove.className='text-action';remove.style.color='var(--danger)';remove.textContent='删除';remove.onclick=()=>removeRecurring(rule.id);
+    actions.append(label,edit,remove);row.append(heading,meta,actions);list.appendChild(row);
+  });
+}
+function saveRecurringRule(){
+  const rules=getRecurring(),previous=rules.find(r=>r.id===editingRecurringId);
+  const startDate=document.getElementById('recurringStart').value,day=Number(document.getElementById('recurringDay').value);
+  if(!BillTools.validDate(startDate)||!Number.isInteger(day)||day<1||day>31){alert('请输入有效的开始日期和扣款日');return}
+  const rule={id:editingRecurringId||genId(),name:document.getElementById('recurringName').value.trim(),
+    amount:Number(document.getElementById('recurringAmount').value),day,startDate,
+    category:document.getElementById('recurringCategory').value,account:document.getElementById('recurringAccount').value,
+    note:document.getElementById('recurringNote').value.trim(),enabled:previous?previous.enabled:true,
+    nextDate:previous&&previous.day===day&&previous.startDate===startDate?previous.nextDate:BillTools.firstDue(startDate,day)};
+  if(previous&&rule.nextDate.slice(0,7)<previous.nextDate.slice(0,7)){
+    rule.nextDate=BillTools.firstDue(previous.nextDate.slice(0,7)+'-01',day);
+  }
+  if(!BillTools.validRule(rule)){alert('请填写名称、有效金额、分类和账户');return}
+  const persist=()=>{
+    if(previous)rules[rules.indexOf(previous)]=rule;else rules.push(rule);
+    saveRecurring(rules);clearRecurringForm();checkRecurring();renderRecurringManager();renderBackupStatus();
+  };
+  if(rule.nextDate<=today()&&rule.enabled)showConfirm('将补记从 '+rule.nextDate+' 起到今天的到期账单（仅记账，不实际扣款），确定？',persist);
+  else persist();
+}
+function editRecurring(id){
+  const rule=getRecurring().find(r=>r.id===id);if(!rule)return;
+  editingRecurringId=id;
+  Object.entries({recurringName:rule.name,recurringAmount:rule.amount,recurringDay:rule.day,recurringStart:rule.startDate,recurringNote:rule.note||''})
+    .forEach(([key,value])=>document.getElementById(key).value=value);
+  selectKnownOption('recurringCategory',rule.category);selectKnownOption('recurringAccount',rule.account);
+  document.getElementById('recurringSave').textContent='保存修改';document.getElementById('recurringCancelEdit').hidden=false;
+  document.getElementById('recurringName').focus();
+}
+function toggleRecurring(id,enabled){
+  const rules=getRecurring(),rule=rules.find(r=>r.id===id);if(!rule)return;
+  rule.enabled=enabled;
+  if(enabled)rule.nextDate=BillTools.firstDue(today()>rule.startDate?today():rule.startDate,rule.day);
+  saveRecurring(rules);checkRecurring();renderRecurringManager();renderBackupStatus();
+}
+function removeRecurring(id){
+  showConfirm('删除这项固定账单？已生成的历史账单会保留。',()=>{
+    saveRecurring(getRecurring().filter(r=>r.id!==id));
+    if(editingRecurringId===id)clearRecurringForm();renderRecurringManager();renderBackupStatus();
+  });
+}
+function checkRecurring(){
+  const status=document.getElementById('recurringStatus');
+  try{
+    const rules=getRecurring(),result=BillTools.collectDue(rules,getRecords(),today());
+    if(JSON.stringify(rules)!==JSON.stringify(result.rules)){
+      if(result.added)saveRecords(result.records);
+      saveRecurring(result.rules);
+    }
+    if(result.added){status.hidden=false;status.textContent='已补记 '+result.added+' 条固定账单';refreshHome();
+      if(document.getElementById('page-list').classList.contains('active'))renderList();
+      if(document.getElementById('page-stats').classList.contains('active'))renderStats();
+      if(document.getElementById('page-analysis').classList.contains('active'))runAnalysis();
+    }
+  }catch(e){status.hidden=false;status.textContent='固定账单记账失败，请检查设备存储空间后重新打开应用';}
 }
 
 function renderShortcuts(){
@@ -436,7 +685,7 @@ function renderShortcuts(){
 }
 
 function addRecord(){
-  const name=document.getElementById('inpName').value.trim();
+  const name=BillTools.canonicalName(document.getElementById('inpName').value);
   const amount=parseFloat(document.getElementById('inpAmount').value);
   const category=document.getElementById('inpCategory').value;
   const account=document.getElementById('inpAccount').value;
@@ -448,6 +697,8 @@ function addRecord(){
   const records=getRecords();
   records.unshift({id:genId(),name,amount,category,account,date,note,time:now(),type:'expense'});
   saveRecords(records);
+  if(!getCategories().includes(category))saveCategories(getCategories().concat(category));
+  if(account&&!getAccounts().includes(account))saveAccounts(getAccounts().concat(account));
   document.getElementById('inpName').value='';
   document.getElementById('inpAmount').value='';
 
@@ -464,7 +715,7 @@ function addShortcutRecord(id){
   const records=getRecords();
   records.unshift({
     id:genId(),
-    name:shortcut.name,
+    name:BillTools.canonicalName(shortcut.name),
     amount,
     category:shortcut.category,
     account:shortcut.account,
@@ -522,15 +773,14 @@ function editRecord(id){
 }
 function closeModal(){document.getElementById('editModal').classList.remove('active');editingId=null}
 function saveEdit(){
-  const name=document.getElementById('editName').value.trim();
+  const name=BillTools.canonicalName(document.getElementById('editName').value);
   const amount=parseFloat(document.getElementById('editAmount').value);
   const category=document.getElementById('editCategory').value;
   const account=document.getElementById('editAccount').value;
   const date=document.getElementById('editDate').value;
-  const note='';
   if(!amount||amount<=0){alert('请输入有效金额');return}
   const records=getRecords();const idx=records.findIndex(x=>x.id===editingId);
-  if(idx>-1){records[idx]={...records[idx],name,amount,category,account,date,note};saveRecords(records)}
+  if(idx>-1){records[idx]={...records[idx],name,amount,category,account,date};saveRecords(records)}
   closeModal();renderList();refreshHome();
 }
 
@@ -719,7 +969,8 @@ function downloadFile(filename,content,type){
   setTimeout(()=>{document.body.removeChild(a);URL.revokeObjectURL(url)},100);
 }
 function recordSignature(records){
-  return records.map(r=>[r.id,r.date,r.name,r.category,r.account,r.amount,r.time].join('|')).sort().join('\n');
+  return JSON.stringify({records,categories:getCategories(),accounts:getAccounts(),shortcuts:getShortcuts(),
+    recurring:getRecurring(),frequentTemplates:getFrequentTemplates(),theme:getTheme()});
 }
 function markBackupComplete(){
   localStorage.setItem(STORAGE_BACKUP_AT,new Date().toISOString());
@@ -727,6 +978,7 @@ function markBackupComplete(){
   renderBackupStatus();
 }
 function renderBackupStatus(){
+  document.getElementById('nameBackupRow').hidden=!localStorage.getItem(STORAGE_NAME_BACKUP);
   const el=document.getElementById('backupStatus');if(!el)return;
   const records=getRecords();
   const at=localStorage.getItem(STORAGE_BACKUP_AT);
@@ -812,15 +1064,21 @@ function importCSVFile(event){
   };
   reader.readAsText(file,'utf-8');
 }
-function exportBackupJSON(){
-  const backup={
-    version:1,
+function createBackup(){
+  return {
+    version:2,
     exportedAt:new Date().toISOString(),
     records:getRecords(),
     categories:getCategories(),
     accounts:getAccounts(),
-    shortcuts:getShortcuts()
+    shortcuts:getShortcuts(),
+    recurring:getRecurring(),
+    frequentTemplates:getFrequentTemplates(),
+    theme:getTheme()
   };
+}
+function exportBackupJSON(){
+  const backup=createBackup();
   downloadFile('ledger_backup_'+today()+'.json',JSON.stringify(backup,null,2),'application/json;charset=utf-8');
   markBackupComplete();
   alert('完整备份已导出');
@@ -835,11 +1093,22 @@ function restoreBackupJSON(event){
     try{data=JSON.parse(String(reader.result||''))}
     catch(e){alert('JSON 备份文件无法解析');return}
     if(!Array.isArray(data.records)){alert('备份文件缺少账单数据');return}
+    if(data.recurring!==undefined&&(!Array.isArray(data.recurring)||!data.recurring.every(BillTools.validRule)||new Set(data.recurring.map(r=>r.id)).size!==data.recurring.length)){
+      alert('备份中的固定账单无效，未恢复任何数据');return;
+    }
+    if(data.frequentTemplates!==undefined&&(!Array.isArray(data.frequentTemplates)||!data.frequentTemplates.every(r=>
+      r&&typeof r.name==='string'&&r.name.trim()&&typeof r.category==='string'&&r.category.trim()&&typeof r.account==='string'&&
+      Number.isFinite(r.amount)&&r.amount>0&&Number.isInteger(r.count)&&r.count>=1&&typeof r.last==='string'))){
+      alert('备份中的常用项目无效，未恢复任何数据');return;
+    }
     showConfirm('确定用这个 JSON 备份恢复？当前本地数据会被替换。',()=>{
       saveRecords(data.records);
       saveCategories(Array.isArray(data.categories)?data.categories:DEFAULT_CATS);
       saveAccounts(Array.isArray(data.accounts)?data.accounts:DEFAULT_ACCOUNTS);
       saveShortcuts(Array.isArray(data.shortcuts)?data.shortcuts:[]);
+      saveRecurring(data.recurring||[]);
+      localStorage.setItem(STORAGE_FREQUENT,JSON.stringify(data.frequentTemplates||[]));
+      if(data.theme)applyTheme(data.theme);
       populateCategorySelects();refreshHome();renderList();renderBackupStatus();
       alert('JSON 备份已恢复');
     });
@@ -957,7 +1226,13 @@ function showCategoryDetail(cat){
 function closeDetail(){document.getElementById('detailModal').classList.remove('active')}
 
 // ====== INIT ======
+checkRecurring();
 refreshHome();
+document.addEventListener('visibilitychange',()=>{
+  if(document.visibilityState==='visible'){checkRecurring();refreshHome();renderBackupStatus()}
+});
+window.addEventListener('pageshow',()=>{checkRecurring();refreshHome()});
+setInterval(()=>{if(document.visibilityState==='visible'){checkRecurring();renderBackupStatus()}},60000);
 // ====== SERVICE WORKER ======
 if('serviceWorker' in navigator){
   navigator.serviceWorker.register('sw.js');
