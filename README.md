@@ -46,6 +46,15 @@ bill-pwa/
 
 **注意：** 数据完全本地化，换设备、清缓存、使用隐私模式都会丢失数据。建议定期导出 JSON 完整备份；CSV 适合账单合并导入，JSON 适合完整恢复账单、分类、账户和快捷账单。
 
+## 存储位置与主题启动
+
+- 账单和设置存储在当前设备、当前浏览器/主屏幕 Web App 的本地网站存储中；线上站点的 origin 是 `https://dagongzhanshi1.github.io`，不是 GitHub 仓库内的文件。手机系统管理实际磁盘位置，无法通过“文件”App 直接打开数据库。不同浏览器、设备、本地预览和线上地址不应视为同一份数据。
+- 公开版本不预置个人账单。全新浏览器首次访问时账单和常用项目为空，由使用者自行记账或导入；同一浏览器再次打开会保留自己的记录。不同浏览器的本地数据不通过本站互相同步。此前载入个人账单的 `127.0.0.1` 演示不属于 GitHub Pages 发布内容。
+- `ledger_records` 保存账单，`ledger_theme` 保存主题，其他存储 key 见上文；不会自动把账单同步到 GitHub 或 iCloud 文件夹，只有导出的 CSV/JSON/MD 才是独立文件。
+- 离线软件资源单独保存在 Cache Storage，当前缓存为 `ledger-v9`，内容是首页、`bill-tools.js`、manifest 和图标，不是账单数据库；浏览器还可能管理普通 HTTP 缓存。
+- 更新代码和升级离线缓存不清除账单。不要通过清除整个网站数据解决主题或更新问题；删除网站数据会影响本地账单，先导出 JSON 备份。
+- 主题在 `<head>` 内同步恢复，CSS 在根节点读取主题，避免等待外部脚本时先显示默认绿色；浏览器的主题色 meta 同步更新。操作系统启动画面不属于网页渲染，其外观仍由系统与安装信息管理。
+
 ## 技术栈
 
 - 纯前端：HTML + CSS + JavaScript（单页应用）
@@ -93,3 +102,7 @@ git push origin main
 运行 `node --test tests/bill-tools.test.cjs`。
 
 浏览器回归：安装 Playwright 后运行 `node tests/app-smoke.cjs`（默认使用 macOS Chrome，可通过 `CHROME_PATH` 指定浏览器）。可用 `BILL_TEST_MD` 指向本地流水文件做提取测试，测试不修改源文件或真实浏览器数据。
+
+主题首帧回归：`node tests/theme-startup.cjs`。测试会挂起外部脚本请求，在应用初始化前验证四种主题的明暗配色，再检查切换、重载及原有账单保持不变。
+
+首次访问与隔离回归：`node tests/privacy-first-run.cjs https://dagongzhanshi1.github.io/bill-pwa/`。使用两个临时浏览器环境，验证首次访问为空、自己的数据能保留、另一个独立环境读取不到测试记录，不操作真实浏览器数据。

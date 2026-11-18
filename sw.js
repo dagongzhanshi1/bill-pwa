@@ -1,4 +1,4 @@
-const CACHE = 'ledger-v8';
+const CACHE = 'ledger-v9';
 const URLS = ['index.html','bill-tools.js','manifest.json','icon.svg'];
 
 self.addEventListener('install', e => {

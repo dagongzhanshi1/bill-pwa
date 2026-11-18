@@ -5,8 +5,23 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#4A7C59" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#1a1a2e" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#F4F6F5" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#101612" media="(prefers-color-scheme: dark)">
+<script>
+// Restore the theme before CSS or external scripts can produce a default-color frame.
+window.applyLedgerTheme=function(theme){
+  const colors={forest:['#F4F6F5','#101612'],ocean:['#F3F7F8','#0E171B'],ink:['#F4F4F2','#101114'],berry:['#F6F3F5','#151017']};
+  const value=Object.prototype.hasOwnProperty.call(colors,theme)?theme:'forest';
+  document.documentElement.dataset.theme=value;
+  if(document.body)document.body.dataset.theme=value;
+  document.querySelectorAll('meta[name="theme-color"]').forEach(meta=>{
+    meta.content=colors[value][meta.media.includes('dark')?1:0];
+  });
+  return value;
+};
+try{window.applyLedgerTheme(localStorage.getItem('ledger_theme'))}
+catch(e){window.applyLedgerTheme('forest')}
+</script>
 <link rel="manifest" href="manifest.json?v=2">
 <title>轻记账</title>
 <style>
@@ -49,13 +64,13 @@
     --primary-shadow: 0 10px 22px rgba(63,122,88,.34);
   }
 }
-body[data-theme="ocean"]{--primary:#356E88;--primary-light:#E7F1F5;--primary-dark:#29566A;--accent:#4A7C59;--warm:#C9912C;--bg:#F3F7F8;--card:#FFFFFF;--card-2:#F7FAFB;--text:#172635;--text2:#687A86;--border:#DCE7EB;--shadow:0 12px 26px rgba(24,60,78,.08);--shadow-soft:0 1px 2px rgba(24,60,78,.05);--button-shadow:0 9px 18px rgba(24,60,78,.1);--primary-shadow:0 10px 22px rgba(53,110,136,.26)}
-body[data-theme="ink"]{--primary:#4C5D73;--primary-light:#ECEFF3;--primary-dark:#334155;--accent:#3F7A58;--warm:#B77D2B;--bg:#F4F4F2;--card:#FFFFFF;--card-2:#F7F7F5;--text:#171A22;--text2:#6C7280;--border:#E0E1DF;--shadow:0 12px 26px rgba(24,26,34,.08);--shadow-soft:0 1px 2px rgba(24,26,34,.05);--button-shadow:0 9px 18px rgba(24,26,34,.1);--primary-shadow:0 10px 22px rgba(76,93,115,.26)}
-body[data-theme="berry"]{--primary:#8A4963;--primary-light:#F5EAF0;--primary-dark:#6C344B;--accent:#356E88;--warm:#C9912C;--bg:#F6F3F5;--card:#FFFFFF;--card-2:#FAF7F9;--text:#211A20;--text2:#766B73;--border:#E8DDE4;--danger:#C95555;--danger-soft:#F9EAEA;--shadow:0 12px 26px rgba(75,34,55,.08);--shadow-soft:0 1px 2px rgba(75,34,55,.05);--button-shadow:0 9px 18px rgba(75,34,55,.1);--primary-shadow:0 10px 22px rgba(138,73,99,.26)}
+html[data-theme="ocean"]{--primary:#356E88;--primary-light:#E7F1F5;--primary-dark:#29566A;--accent:#4A7C59;--warm:#C9912C;--bg:#F3F7F8;--card:#FFFFFF;--card-2:#F7FAFB;--text:#172635;--text2:#687A86;--border:#DCE7EB;--shadow:0 12px 26px rgba(24,60,78,.08);--shadow-soft:0 1px 2px rgba(24,60,78,.05);--button-shadow:0 9px 18px rgba(24,60,78,.1);--primary-shadow:0 10px 22px rgba(53,110,136,.26)}
+html[data-theme="ink"]{--primary:#4C5D73;--primary-light:#ECEFF3;--primary-dark:#334155;--accent:#3F7A58;--warm:#B77D2B;--bg:#F4F4F2;--card:#FFFFFF;--card-2:#F7F7F5;--text:#171A22;--text2:#6C7280;--border:#E0E1DF;--shadow:0 12px 26px rgba(24,26,34,.08);--shadow-soft:0 1px 2px rgba(24,26,34,.05);--button-shadow:0 9px 18px rgba(24,26,34,.1);--primary-shadow:0 10px 22px rgba(76,93,115,.26)}
+html[data-theme="berry"]{--primary:#8A4963;--primary-light:#F5EAF0;--primary-dark:#6C344B;--accent:#356E88;--warm:#C9912C;--bg:#F6F3F5;--card:#FFFFFF;--card-2:#FAF7F9;--text:#211A20;--text2:#766B73;--border:#E8DDE4;--danger:#C95555;--danger-soft:#F9EAEA;--shadow:0 12px 26px rgba(75,34,55,.08);--shadow-soft:0 1px 2px rgba(75,34,55,.05);--button-shadow:0 9px 18px rgba(75,34,55,.1);--primary-shadow:0 10px 22px rgba(138,73,99,.26)}
 @media (prefers-color-scheme: dark){
-  body[data-theme="ocean"]{--primary:#78AFC5;--primary-light:#17303A;--primary-dark:#A9D1DF;--bg:#0E171B;--card:#162228;--card-2:#111D22;--text:#EAF2F5;--text2:#9FB3BD;--border:#283D45;--glass:rgba(22,34,40,.84);--primary-shadow:0 10px 22px rgba(120,175,197,.28)}
-  body[data-theme="ink"]{--primary:#9AA7B8;--primary-light:#252B34;--primary-dark:#D0D7E0;--bg:#101114;--card:#191B20;--card-2:#121419;--text:#F1F2F4;--text2:#A8ADB6;--border:#2D3037;--glass:rgba(25,27,32,.84);--primary-shadow:0 10px 22px rgba(154,167,184,.24)}
-  body[data-theme="berry"]{--primary:#D38AA8;--primary-light:#3A2230;--primary-dark:#F0B7CF;--bg:#151017;--card:#211822;--card-2:#181119;--text:#F6EEF3;--text2:#B9A7B2;--border:#3A2A35;--glass:rgba(33,24,34,.84);--primary-shadow:0 10px 22px rgba(211,138,168,.26)}
+  html[data-theme="ocean"]{--primary:#78AFC5;--primary-light:#17303A;--primary-dark:#A9D1DF;--bg:#0E171B;--card:#162228;--card-2:#111D22;--text:#EAF2F5;--text2:#9FB3BD;--border:#283D45;--glass:rgba(22,34,40,.84);--primary-shadow:0 10px 22px rgba(120,175,197,.28)}
+  html[data-theme="ink"]{--primary:#9AA7B8;--primary-light:#252B34;--primary-dark:#D0D7E0;--bg:#101114;--card:#191B20;--card-2:#121419;--text:#F1F2F4;--text2:#A8ADB6;--border:#2D3037;--glass:rgba(25,27,32,.84);--primary-shadow:0 10px 22px rgba(154,167,184,.24)}
+  html[data-theme="berry"]{--primary:#D38AA8;--primary-light:#3A2230;--primary-dark:#F0B7CF;--bg:#151017;--card:#211822;--card-2:#181119;--text:#F6EEF3;--text2:#B9A7B2;--border:#3A2A35;--glass:rgba(33,24,34,.84);--primary-shadow:0 10px 22px rgba(211,138,168,.26)}
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html{background:var(--bg)}
@@ -432,9 +447,7 @@ function initStorage(){
 }
 
 function applyTheme(theme){
-  const allowed=['forest','ocean','ink','berry'];
-  const value=allowed.includes(theme)?theme:'forest';
-  document.body.dataset.theme=value;
+  const value=window.applyLedgerTheme(theme);
   localStorage.setItem(STORAGE_THEME,value);
   const sel=document.getElementById('themeSelect');
   if(sel)sel.value=value;
